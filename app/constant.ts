@@ -1,4 +1,4 @@
-export const OWNER = "Yidadaa";
+export const OWNER = "forkyguo";
 export const REPO = "ChatGPT-Next-Web";
 export const REPO_URL = `https://github.com/${OWNER}/${REPO}`;
 export const ISSUE_URL = `https://github.com/forkyguo/ruxi/issues`;
@@ -68,13 +68,12 @@ export const OpenaiPath = {
 
 export const DEFAULT_INPUT_TEMPLATE = `{{input}}`; // input / time / model / lang
 export const DEFAULT_SYSTEM_TEMPLATE = `
-You are ChatGPT, a large language model trained by OpenAI.
 Knowledge cutoff: {{knowledgeCutoff}}
 Current model: {{model}}
 Current time: {{time}}
 `;
 
-export const SUMMARIZE_MODEL = "gpt-3.5-turbo";
+export const SUMMARIZE_MODEL = "gpt-4";
 
 export const DEFAULT_MODELS = [
   {

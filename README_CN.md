@@ -1,7 +1,7 @@
 <div align="center">
 <img src="./docs/images/icon.svg" alt="预览"/>
 
-<h1 align="center">ChatGPT Next Web</h1>
+<h1 align="center">如溪测试系统</h1>
 
 一键免费部署你的私人 ChatGPT 网页应用。
 
@@ -36,7 +36,7 @@
 
 > 如果你遇到了 Upstream Sync 执行错误，请手动 Sync Fork 一次！
 
-当你 fork 项目之后，由于 Github 的限制，需要手动去你 fork 后的项目的 Actions 页面启用 Workflows，并启用 Upstream Sync Action，启用之后即可开启每小时定时自动更新：
+当你 fork 项目之后，由于 Github 的限制，需要手动去你 fork 后的项目的 Actions 页面启用 Workflyaows，并启用 Upstream Sync Action，启用之后即可开启每小时定时自动更新：
 
 ![自动更新](./docs/images/enable-actions.jpg)
 

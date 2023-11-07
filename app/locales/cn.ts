@@ -75,7 +75,7 @@ const cn = {
     },
     Send: "发送",
     Config: {
-      Reset: "清除记忆",
+      Reset: "重置",
       SaveAs: "存为面具",
     },
     IsContext: "预设提示词",
@@ -418,8 +418,8 @@ const cn = {
 
 type DeepPartial<T> = T extends object
   ? {
-      [P in keyof T]?: DeepPartial<T[P]>;
-    }
+    [P in keyof T]?: DeepPartial<T[P]>;
+  }
   : T;
 
 export type LocaleType = typeof cn;

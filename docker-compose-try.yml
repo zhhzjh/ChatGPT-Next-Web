@@ -11,8 +11,8 @@ services:
       timeout: 2s  
       retries: 3  
     environment:
-      - OPENAI_API_KEY=$OPENAI_API_KEY
-      - CODE=$CODE
+      - OPENAI_API_KEY=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
+      - CODE=99527
       - BASE_URL=$BASE_URL
       - OPENAI_ORG_ID=$OPENAI_ORG_ID
       - HIDE_USER_API_KEY=$HIDE_USER_API_KEY

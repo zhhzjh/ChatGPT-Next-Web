@@ -1,0 +1,19 @@
+version: '3'  
+services:  
+  app:  
+    build:  
+      context: .  
+      dockerfile: Dockerfile  
+    ports:  
+      - 3001:3000  
+    healthcheck:  
+      interval: 5s  
+      timeout: 2s  
+      retries: 3  
+    environment:
+      - OPENAI_API_KEY=$OPENAI_API_KEY
+      - CODE=$CODE
+      - BASE_URL=$BASE_URL
+      - OPENAI_ORG_ID=$OPENAI_ORG_ID
+      - HIDE_USER_API_KEY=$HIDE_USER_API_KEY
+      - DISABLE_GPT4=$DISABLE_GPT4

@@ -10,6 +10,7 @@ services:
       interval: 5s  
       timeout: 2s  
       retries: 3  
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]  
     environment:
       - OPENAI_API_KEY=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
       - CODE=99527

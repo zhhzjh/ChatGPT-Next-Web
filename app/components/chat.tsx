@@ -962,13 +962,9 @@ function _Chat() {
   const { selection, updateSelection } = useMessageSelector();
 
   const makeDiary = useCallback(() => {
-    const ret: ChatMessage[] = [];
-    // if (exportConfig.includeContext) {
-    //   ret.push(...session.mask.context);
-    // }
-    ret.push(...session.messages);
-
-    console.log(ret);
+    setIsLoading(true);
+    chatStore.onMakeDiary().then(() => setIsLoading(false));
+    inputRef.current?.focus();
   }, [session.messages]);
 
   // clear context index = context length + index in messages

@@ -288,7 +288,7 @@ export const useChatStore = createPersistStore(
         get().summarizeSession();
       },
 
-      async onUserInput(content: string) {
+      async onUserInput(content: string, makeDiary: boolean = false) {
         const session = get().currentSession();
         const modelConfig = session.mask.modelConfig;
 
@@ -376,6 +376,100 @@ export const useChatStore = createPersistStore(
         });
       },
 
+      async onMakeDiary() {
+        const session = get().currentSession();
+        const modelConfig = session.mask.modelConfig;
+
+        const botMessage: ChatMessage = createMessage({
+          role: "assistant",
+          streaming: true,
+          model: modelConfig.model,
+        });
+
+        // save user's and bot's message
+        get().updateCurrentSession((session) => {
+          // const savedUserMessage = {
+          //   ...userMessage,
+          // };
+          session.messages = session.messages.concat([
+            // savedUserMessage,
+            botMessage,
+          ]);
+        });
+
+        const messageIndex = get().currentSession().messages.length + 1;
+
+        let toBeSummarizedMsgs = session.messages
+          .filter((msg) => !msg.isError)
+          .slice(0);
+
+        // todo: 判定长度超长
+
+        // console.log("toBeSummarizedMsgs", toBeSummarizedMsgs)
+
+        // make request
+        api.llm.chat({
+          messages: toBeSummarizedMsgs.concat(
+            createMessage({
+              role: "system",
+              content: Locale.MakeDiary.Prompt,
+              date: "",
+            }),
+          ),
+          config: {
+            ...modelConfig,
+            stream: true,
+            model: getSummarizeModel(session.mask.modelConfig.model),
+          },
+          onUpdate(message) {
+            botMessage.streaming = true;
+            if (message) {
+              botMessage.content = message;
+            }
+            get().updateCurrentSession((session) => {
+              session.messages = session.messages.concat();
+            });
+          },
+          onFinish(message) {
+            botMessage.streaming = false;
+            if (message) {
+              botMessage.content = message;
+              get().onNewMessage(botMessage);
+            }
+            ChatControllerPool.remove(session.id, botMessage.id);
+          },
+          onError(error) {
+            const isAborted = error.message.includes("aborted");
+            botMessage.content +=
+              "\n\nPlease retry. Error message:\n\n" +
+              prettyObject({
+                error: true,
+                message: error.message,
+              });
+            botMessage.streaming = false;
+            // userMessage.isError = !isAborted;
+            botMessage.isError = !isAborted;
+            get().updateCurrentSession((session) => {
+              session.messages = session.messages.concat();
+            });
+
+            ChatControllerPool.remove(
+              session.id,
+              botMessage.id ?? messageIndex,
+            );
+
+            console.error("[Chat] failed ", error);
+          },
+          onController(controller) {
+            // collect controller for stop/retry
+            ChatControllerPool.addController(
+              session.id,
+              botMessage.id ?? messageIndex,
+              controller,
+            );
+          },
+        });
+      },
       getMemoryPrompt() {
         const session = get().currentSession();
 

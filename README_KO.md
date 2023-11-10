@@ -1,7 +1,7 @@
 <div align="center">
 <img src="./docs/images/icon.svg" alt="프리뷰"/>
 
-<h1 align="center">如溪测试系统</h1>
+<h1 align="center">如溪</h1>
 
 개인 ChatGPT 웹 애플리케이션을 한 번의 클릭으로 무료로 배포하세요.
 

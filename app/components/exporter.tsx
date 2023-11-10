@@ -96,8 +96,9 @@ function Steps<
           return (
             <div
               key={i}
-              className={`${styles["step"]} ${styles[i <= props.index ? "step-finished" : ""]
-                } ${i === props.index && styles["step-current"]} clickable`}
+              className={`${styles["step"]} ${
+                styles[i <= props.index ? "step-finished" : ""]
+              } ${i === props.index && styles["step-current"]} clickable`}
               onClick={() => {
                 props.onStepChange?.(i);
               }}
@@ -513,7 +514,7 @@ export function ImagePreviewer(props: {
           </div>
 
           <div>
-            <div className={styles["main-title"]}>如溪测试系统</div>
+            <div className={styles["main-title"]}>如溪</div>
             <div className={styles["sub-title"]}>
               github.com/Yidadaa/ChatGPT-Next-Web
             </div>

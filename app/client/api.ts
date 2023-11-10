@@ -77,11 +77,11 @@ export class ClientApi {
     this.llm = new ChatGPTApi();
   }
 
-  config() { }
+  config() {}
 
-  prompts() { }
+  prompts() {}
 
-  masks() { }
+  masks() {}
 
   async share(messages: ChatMessage[], avatarUrl: string | null = null) {
     const msgs = messages
@@ -92,8 +92,7 @@ export class ClientApi {
       .concat([
         {
           from: "human",
-          value:
-            "Share from [如溪测试系统]",
+          value: "Share from [如溪]",
         },
       ]);
     // 敬告二开开发者们，为了开源大模型的发展，请不要修改上述消息，此消息用于后续数据清洗使用

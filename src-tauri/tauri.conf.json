@@ -9,7 +9,7 @@
   },
   "package": {
     "productName": "如溪",
-    "version": "2.9.9"
+    "version": "2.9.9.2"
   },
   "tauri": {
     "allowlist": {

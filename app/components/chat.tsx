@@ -1114,6 +1114,11 @@ function _Chat() {
         {messages.map((message, i) => {
           const isUser = message.role === "user";
           const isContext = i < context.length;
+
+          //去掉预设词的显示
+          if (isContext) {
+            return <></>;
+          }
           const showActions =
             i > 0 &&
             !(message.preview || message.content.length === 0) &&

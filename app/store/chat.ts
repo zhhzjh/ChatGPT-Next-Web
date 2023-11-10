@@ -288,7 +288,7 @@ export const useChatStore = createPersistStore(
         get().summarizeSession();
       },
 
-      async onUserInput(content: string, makeDiary: boolean = false) {
+      async onUserInput(content: string) {
         const session = get().currentSession();
         const modelConfig = session.mask.modelConfig;
 

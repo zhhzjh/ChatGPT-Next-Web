@@ -1117,7 +1117,8 @@ function _Chat() {
 
           //去掉预设词的显示
           if (isContext) {
-            return <></>;
+            // return <></>;
+            message.content = "gf";
           }
           const showActions =
             i > 0 &&

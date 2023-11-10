@@ -36,6 +36,7 @@ const en: LocaleType = {
       ChatList: "Go To Chat List",
       CompressedHistory: "Compressed History Memory Prompt",
       Export: "Export All Messages as Markdown",
+      Diary: "Generate Diary",
       Copy: "Copy",
       Stop: "Stop",
       Retry: "Retry",
@@ -311,6 +312,17 @@ const en: LocaleType = {
       Title: "Frequency Penalty",
       SubTitle:
         "A larger value decreasing the likelihood to repeat the same line",
+    },
+  },
+  StoreDiary: {
+    DefaultTopic: "新的聊天",
+    BotHello: "有什么可以帮你的吗",
+    Error: "出错了，稍后重试吧",
+    Prompt: {
+      History: (content: string) => "这是历史聊天总结作为前情提要：" + content,
+      Topic:
+        "根据上面的对话生成一篇育儿笔记，笔记角度以对话中的妈妈角度和口吻来写，其中知识占笔记篇幅的1/4，其余是对话，两个部分要融合，不要割裂。笔记文风轻松平和，如实映射对话的情绪基调，不必夸大其中的喜悦和悲哀。格式上可以有弹性，灵活布局，全篇加入各样的emoji，表现一种日式手账的风格。",
+      Summarize: "根据上面的对话生成一篇育儿笔记，以对话中的妈妈角度和口吻来写",
     },
   },
   Store: {

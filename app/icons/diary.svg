@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="14px" height="14px" viewBox="0 0 14 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>编组</title>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <g id="编组-11" transform="translate(-1, -1)" stroke="#666666" stroke-width="1.6">
+            <g id="编组" transform="translate(2, 2)">
+                <polyline id="路径" points="8 0 12 0 12 4"></polyline>
+                <path d="M12,7.82456667 L12,11 C12,11.5523 11.5523,12 11,12 L1,12 C0.447716667,12 0,11.5523 0,11 L0,1 C0,0.447716667 0.447716667,0 1,0 L4,0" id="路径"></path>
+                <line x1="8" y1="4" x2="12" y2="0" id="路径"></line>
+            </g>
+        </g>
+    </g>
+</svg>

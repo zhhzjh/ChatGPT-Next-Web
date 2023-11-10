@@ -12,6 +12,7 @@ import SendWhiteIcon from "../icons/send-white.svg";
 import BrainIcon from "../icons/brain.svg";
 import RenameIcon from "../icons/rename.svg";
 import ExportIcon from "../icons/share.svg";
+import DiaryIcon from "../icons/diary.svg";
 import ReturnIcon from "../icons/return.svg";
 import CopyIcon from "../icons/copy.svg";
 import LoadingIcon from "../icons/three-dots.svg";
@@ -89,6 +90,7 @@ import { ChatCommandPrefix, useChatCommand, useCommand } from "../command";
 import { prettyObject } from "../utils/format";
 import { ExportMessageModal } from "./exporter";
 import { getClientConfig } from "../config/client";
+import { useMessageSelector } from "./message-selector";
 
 const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
   loading: () => <LoadingIcon />,
@@ -957,6 +959,18 @@ function _Chat() {
     scrollDomToBottom();
   }
 
+  const { selection, updateSelection } = useMessageSelector();
+
+  const makeDiary = useCallback(() => {
+    const ret: ChatMessage[] = [];
+    // if (exportConfig.includeContext) {
+    //   ret.push(...session.mask.context);
+    // }
+    ret.push(...session.messages);
+
+    console.log(ret);
+  }, [session.messages]);
+
   // clear context index = context length + index in messages
   const clearContextIndex =
     (session.clearContextIndex ?? -1) >= 0
@@ -1069,14 +1083,24 @@ function _Chat() {
               />
             </div>
           )}
+          {!isMobileScreen && (
+            <div className="window-action-button">
+              <IconButton
+                icon={<ExportIcon />}
+                bordered
+                title={Locale.Chat.Actions.Export}
+                onClick={() => {
+                  setShowExport(true);
+                }}
+              />
+            </div>
+          )}
           <div className="window-action-button">
             <IconButton
-              icon={<ExportIcon />}
+              icon={<DiaryIcon />}
               bordered
-              title={Locale.Chat.Actions.Export}
-              onClick={() => {
-                setShowExport(true);
-              }}
+              title={Locale.Chat.Actions.Diary}
+              onClick={makeDiary}
             />
           </div>
           {showMaxIcon && (

@@ -15,6 +15,7 @@ const tw: PartialLocaleType = {
       ChatList: "檢視訊息列表",
       CompressedHistory: "檢視壓縮後的歷史 Prompt",
       Export: "匯出聊天紀錄",
+      Diary: "生成日記",
       Copy: "複製",
       Stop: "停止",
       Retry: "重試",
@@ -155,6 +156,18 @@ const tw: PartialLocaleType = {
     FrequencyPenalty: {
       Title: "頻率懲罰度 (frequency_penalty)",
       SubTitle: "值越大，越有可能降低重複字詞",
+    },
+  },
+
+  StoreDiary: {
+    DefaultTopic: "新的聊天",
+    BotHello: "有什么可以帮你的吗",
+    Error: "出错了，稍后重试吧",
+    Prompt: {
+      History: (content: string) => "这是历史聊天总结作为前情提要：" + content,
+      Topic:
+        "根據上面的對話生成一篇育兒筆記，筆記角度以對話中的媽媽角度和口吻來寫，其中知識占筆記篇幅的1/4，其餘是對話，兩個部分要融合，不要割裂。 筆記文風輕鬆平和，如實映射對話的情緒基調，不必誇大其中的喜悅和悲哀。 格式上可以有彈性，靈活佈局，全篇加入各樣的emoji，表現一種日式手賬的風格。",
+      Summarize: "根據上面的對話生成一篇育兒筆記，以對話中的媽媽角度和口吻來寫",
     },
   },
   Store: {

@@ -347,7 +347,7 @@ export const useChatStore = createPersistStore(
           onError(error) {
             const isAborted = error.message.includes("aborted");
             botMessage.content +=
-              "\n\n" +
+              "\n\nPlease retry. Error message:\n\n" +
               prettyObject({
                 error: true,
                 message: error.message,

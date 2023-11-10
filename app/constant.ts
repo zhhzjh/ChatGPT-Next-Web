@@ -53,7 +53,7 @@ export const ACCESS_CODE_PREFIX = "nk-";
 export const LAST_INPUT_KEY = "last-input";
 export const UNFINISHED_INPUT = (id: string) => "unfinished-input-" + id;
 
-export const STORAGE_KEY = "ruxi3";
+export const STORAGE_KEY = "ruxi5";
 
 export const REQUEST_TIMEOUT_MS = 60000;
 

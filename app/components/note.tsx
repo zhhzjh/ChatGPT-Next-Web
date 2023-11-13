@@ -18,7 +18,6 @@ import CopyIcon from "../icons/copy.svg";
 import LoadingIcon from "../icons/three-dots.svg";
 import PromptIcon from "../icons/prompt.svg";
 import MaskIcon from "../icons/mask.svg";
-import NoteIcon from "../icons/notes.svg";
 import MaxIcon from "../icons/max.svg";
 import MinIcon from "../icons/min.svg";
 import ResetIcon from "../icons/reload.svg";
@@ -86,7 +85,7 @@ import {
 } from "../constant";
 import { Avatar } from "./emoji";
 import { ContextPrompts, MaskAvatar, MaskConfig } from "./mask";
-import { createEmptyMask, useMaskStore } from "../store/mask";
+import { useMaskStore } from "../store/mask";
 import { ChatCommandPrefix, useChatCommand, useCommand } from "../command";
 import { prettyObject } from "../utils/format";
 import { ExportMessageModal } from "./exporter";
@@ -97,19 +96,11 @@ const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
   loading: () => <LoadingIcon />,
 });
 
-type MaskType = "default" | "note";
-
-export function SessionConfigModel(props: {
-  showModalType: MaskType;
-  onClose: () => void;
-}) {
+export function SessionConfigModel(props: { onClose: () => void }) {
   const chatStore = useChatStore();
   const session = chatStore.currentSession();
   const maskStore = useMaskStore();
   const navigate = useNavigate();
-  const isNote = props.showModalType === "note";
-  if (isNote && !session.noteMask) session.noteMask = createEmptyMask();
-  const mask = isNote ? { ...session.noteMask } : { ...session.mask };
 
   return (
     <div className="modal-mask">
@@ -138,23 +129,22 @@ export function SessionConfigModel(props: {
             onClick={() => {
               navigate(Path.Masks);
               setTimeout(() => {
-                maskStore.create(mask);
+                maskStore.create(session.mask);
               }, 500);
             }}
           />,
         ]}
       >
         <MaskConfig
-          mask={mask}
+          mask={session.mask}
           updateMask={(updater) => {
+            const mask = { ...session.mask };
             updater(mask);
-            chatStore.updateCurrentSession((session) =>
-              isNote ? (session.noteMask = mask) : (session.mask = mask),
-            );
+            chatStore.updateCurrentSession((session) => (session.mask = mask));
           }}
           shouldSyncFromGlobal
           extraListItems={
-            mask.modelConfig.sendMemory ? (
+            session.mask.modelConfig.sendMemory ? (
               <ListItem
                 title={`${Locale.Memory.Title} (${session.lastSummarizeIndex} of ${session.messages.length})`}
                 subTitle={session.memoryPrompt || Locale.Memory.EmptyContent}
@@ -172,14 +162,11 @@ export function SessionConfigModel(props: {
 function PromptToast(props: {
   showToast?: boolean;
   showModal?: boolean;
-  showModalType: MaskType;
   setShowModal: (_: boolean) => void;
 }) {
   const chatStore = useChatStore();
   const session = chatStore.currentSession();
-  const isNote = props.showModalType === "note";
-  if (isNote && !session.noteMask) session.noteMask = createEmptyMask();
-  const context = isNote ? session.noteMask?.context : session.mask.context;
+  const context = session.mask.context;
 
   return (
     <div className={styles["prompt-toast"]} key="prompt-toast">
@@ -196,10 +183,7 @@ function PromptToast(props: {
         </div>
       )}
       {props.showModal && (
-        <SessionConfigModel
-          showModalType={props.showModalType}
-          onClose={() => props.setShowModal(false)}
-        />
+        <SessionConfigModel onClose={() => props.setShowModal(false)} />
       )}
     </div>
   );
@@ -423,7 +407,7 @@ function useScrollToBottom() {
 }
 
 export function ChatActions(props: {
-  showPromptModal: (str: MaskType) => void;
+  showPromptModal: () => void;
   scrollToBottom: () => void;
   showPromptHints: () => void;
   hitBottom: boolean;
@@ -476,7 +460,7 @@ export function ChatActions(props: {
       )}
       {props.hitBottom && (
         <ChatAction
-          onClick={() => props.showPromptModal("default")}
+          onClick={props.showPromptModal}
           text={Locale.Chat.InputActions.Settings}
           icon={<SettingsIcon />}
         />
@@ -551,11 +535,6 @@ export function ChatActions(props: {
           }}
         />
       )}
-      <ChatAction
-        onClick={() => props.showPromptModal("note")}
-        text={Locale.Chat.InputActions.NoteSettings}
-        icon={<SettingsIcon />}
-      />
     </div>
   );
 }
@@ -982,13 +961,11 @@ function _Chat() {
 
   const { selection, updateSelection } = useMessageSelector();
 
-  const makeDiary = () => {
-    console.log("messages:", (session.lastNodeIndex || 0) >= messages.length);
-    if ((session.lastNodeIndex || 0) >= messages.length) return;
+  const makeDiary = useCallback(() => {
     setIsLoading(true);
     chatStore.onMakeDiary().then(() => setIsLoading(false));
     inputRef.current?.focus();
-  };
+  }, [session.messages]);
 
   // clear context index = context length + index in messages
   const clearContextIndex =
@@ -997,8 +974,6 @@ function _Chat() {
       : -1;
 
   const [showPromptModal, setShowPromptModal] = useState(false);
-  const [showPromptModalType, setShowPromptModalType] =
-    useState<MaskType>("default");
 
   const clientConfig = useMemo(() => getClientConfig(), []);
 
@@ -1095,14 +1070,6 @@ function _Chat() {
           </div>
         </div>
         <div className="window-actions">
-          <div className="window-action-button">
-            <IconButton
-              icon={<NoteIcon />}
-              bordered
-              title={Locale.Chat.Actions.Diary}
-              onClick={makeDiary}
-            />
-          </div>
           {!isMobileScreen && (
             <div className="window-action-button">
               <IconButton
@@ -1124,6 +1091,14 @@ function _Chat() {
               />
             </div>
           )}
+          <div className="window-action-button">
+            <IconButton
+              icon={<DiaryIcon />}
+              bordered
+              title={Locale.Chat.Actions.Diary}
+              onClick={makeDiary}
+            />
+          </div>
           {showMaxIcon && (
             <div className="window-action-button">
               <IconButton
@@ -1142,7 +1117,6 @@ function _Chat() {
         <PromptToast
           showToast={!hitBottom}
           showModal={showPromptModal}
-          showModalType={showPromptModalType}
           setShowModal={setShowPromptModal}
         />
       </div>
@@ -1296,10 +1270,7 @@ function _Chat() {
         <PromptHints prompts={promptHints} onPromptSelect={onPromptSelect} />
 
         <ChatActions
-          showPromptModal={(type) => {
-            setShowPromptModal(true);
-            setShowPromptModalType(type || "default");
-          }}
+          showPromptModal={() => setShowPromptModal(true)}
           scrollToBottom={scrollToBottom}
           hitBottom={hitBottom}
           showPromptHints={() => {

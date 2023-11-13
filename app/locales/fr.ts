@@ -43,6 +43,7 @@ const fr: PartialLocaleType = {
       },
       Prompt: "Instructions",
       Masks: "Assistants",
+      Notes: "Notes",
       Clear: "Effacer le contexte",
       Settings: "Réglages",
     },

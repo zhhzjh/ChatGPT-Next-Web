@@ -51,8 +51,9 @@ export interface ChatSession {
   lastUpdate: number;
   lastSummarizeIndex: number;
   clearContextIndex?: number;
-
+  lastNodeIndex?: number;
   mask: Mask;
+  noteMask: Mask;
 }
 
 export const DEFAULT_TOPIC = Locale.Store.DefaultTopic;
@@ -74,8 +75,9 @@ function createEmptySession(): ChatSession {
     },
     lastUpdate: Date.now(),
     lastSummarizeIndex: 0,
-
+    lastNodeIndex: 0,
     mask: createEmptyMask(),
+    noteMask: createEmptyMask(),
   };
 }
 
@@ -378,7 +380,7 @@ export const useChatStore = createPersistStore(
 
       async onMakeDiary() {
         const session = get().currentSession();
-        const modelConfig = session.mask.modelConfig;
+        const modelConfig = session.noteMask.modelConfig;
 
         const botMessage: ChatMessage = createMessage({
           role: "assistant",
@@ -386,11 +388,14 @@ export const useChatStore = createPersistStore(
           model: modelConfig.model,
         });
 
+        const lastNodeIndex = session.lastNodeIndex;
+
         // save user's and bot's message
         get().updateCurrentSession((session) => {
           // const savedUserMessage = {
           //   ...userMessage,
           // };
+          session.lastNodeIndex = session.messages.length;
           session.messages = session.messages.concat([
             // savedUserMessage,
             botMessage,
@@ -400,12 +405,17 @@ export const useChatStore = createPersistStore(
         const messageIndex = get().currentSession().messages.length + 1;
 
         let toBeSummarizedMsgs = session.messages
+          .slice(lastNodeIndex || 0)
           .filter((msg) => !msg.isError)
           .slice(0);
 
         // todo: 判定长度超长
-
-        // console.log("toBeSummarizedMsgs", toBeSummarizedMsgs)
+        console.log(
+          "toBeSummarizedMsgs:",
+          session.lastNodeIndex,
+          lastNodeIndex,
+          toBeSummarizedMsgs,
+        );
 
         // make request
         api.llm.chat({
@@ -419,7 +429,7 @@ export const useChatStore = createPersistStore(
           config: {
             ...modelConfig,
             stream: true,
-            model: getSummarizeModel(session.mask.modelConfig.model),
+            model: getSummarizeModel(session.noteMask.modelConfig.model),
           },
           onUpdate(message) {
             botMessage.streaming = true;

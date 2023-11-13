@@ -290,7 +290,7 @@ export const useChatStore = createPersistStore(
         get().summarizeSession();
       },
 
-      async onUserInput(content: string) {
+      async onUserInput(content: string, isOnlyNote: boolean = false) {
         const session = get().currentSession();
         const modelConfig = session.mask.modelConfig;
 
@@ -301,13 +301,11 @@ export const useChatStore = createPersistStore(
           role: "user",
           content: userContent,
         });
-
         const botMessage: ChatMessage = createMessage({
           role: "assistant",
           streaming: true,
           model: modelConfig.model,
         });
-
         // get recent messages
         const recentMessages = get().getMessagesWithMemory();
         const sendMessages = recentMessages.concat(userMessage);
@@ -319,11 +317,12 @@ export const useChatStore = createPersistStore(
             ...userMessage,
             content,
           };
-          session.messages = session.messages.concat([
-            savedUserMessage,
-            botMessage,
-          ]);
+          session.messages = session.messages.concat(
+            isOnlyNote ? [savedUserMessage] : [savedUserMessage, botMessage],
+          );
         });
+
+        if (isOnlyNote) return;
 
         // make request
         api.llm.chat({

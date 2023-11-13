@@ -46,6 +46,8 @@ const fr: PartialLocaleType = {
       Notes: "Notes",
       Clear: "Effacer le contexte",
       Settings: "Réglages",
+      NoteSettings: "NoteSettings",
+      OnlyNote: "OnlyNote",
     },
     Rename: "Renommer la conversation",
     Typing: "En train d'écrire…",

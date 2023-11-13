@@ -427,6 +427,8 @@ export function ChatActions(props: {
   scrollToBottom: () => void;
   showPromptHints: () => void;
   hitBottom: boolean;
+  setIsOnlyNote: React.Dispatch<React.SetStateAction<boolean>>;
+  isOnlyNote: boolean;
 }) {
   const config = useAppConfig();
   const navigate = useNavigate();
@@ -556,6 +558,18 @@ export function ChatActions(props: {
         text={Locale.Chat.InputActions.NoteSettings}
         icon={<SettingsIcon />}
       />
+      <ListItem
+        className={styles["chat-only-note"]}
+        title={Locale.Chat.InputActions.OnlyNote}
+      >
+        <input
+          type="checkbox"
+          checked={props.isOnlyNote}
+          onChange={(e) => {
+            props.setIsOnlyNote(e.currentTarget.checked);
+          }}
+        ></input>
+      </ListItem>
     </div>
   );
 }
@@ -635,6 +649,7 @@ function _Chat() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isOnlyNote, setIsOnlyNote] = useState(false);
   const { submitKey, shouldSubmit } = useSubmitHandler();
   const { scrollRef, setAutoScroll, scrollDomToBottom } = useScrollToBottom();
   const [hitBottom, setHitBottom] = useState(true);
@@ -708,6 +723,7 @@ function _Chat() {
   };
 
   const doSubmit = (userInput: string) => {
+    console.log("doSubmit:", isOnlyNote);
     if (userInput.trim() === "") return;
     const matchCommand = chatCommands.match(userInput);
     if (matchCommand.matched) {
@@ -716,8 +732,10 @@ function _Chat() {
       matchCommand.invoke();
       return;
     }
-    setIsLoading(true);
-    chatStore.onUserInput(userInput).then(() => setIsLoading(false));
+    setIsLoading(!isOnlyNote);
+    chatStore
+      .onUserInput(userInput, isOnlyNote)
+      .then(() => setIsLoading(false));
     localStorage.setItem(LAST_INPUT_KEY, userInput);
     setUserInput("");
     setPromptHints([]);
@@ -1300,6 +1318,8 @@ function _Chat() {
             setShowPromptModal(true);
             setShowPromptModalType(type || "default");
           }}
+          isOnlyNote={isOnlyNote}
+          setIsOnlyNote={setIsOnlyNote}
           scrollToBottom={scrollToBottom}
           hitBottom={hitBottom}
           showPromptHints={() => {
@@ -1308,7 +1328,6 @@ function _Chat() {
               setPromptHints([]);
               return;
             }
-
             inputRef.current?.focus();
             setUserInput("/");
             onSearch("");

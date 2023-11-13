@@ -68,6 +68,7 @@ const en: LocaleType = {
       Clear: "Clear Context",
       Settings: "Settings",
       NoteSettings: "NoteSettings",
+      OnlyNote: "OnlyNote",
     },
     Rename: "Rename Chat",
     Typing: "Typing…",

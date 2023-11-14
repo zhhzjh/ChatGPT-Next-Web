@@ -736,7 +736,7 @@ function _Chat() {
   };
 
   const doSubmit = (userInput: string) => {
-    console.log("doSubmit:", isOnlyNote);
+    // console.log("doSubmit:", isOnlyNote);
     if (userInput.trim() === "") return;
     const matchCommand = chatCommands.match(userInput);
     if (checkAutoEndChat(userInput)) {
@@ -1025,7 +1025,7 @@ function _Chat() {
 
   const makeDiary = () => {
     console.log("messages:", (session.lastNodeIndex || 0) >= messages.length);
-    if ((session.lastNodeIndex || 0) >= messages.length) return;
+    // if ((session.lastNodeIndex || 0) >= messages.length) return;
     setIsLoading(true);
     chatStore.onMakeDiary().then(() => setIsLoading(false));
     inputRef.current?.focus();

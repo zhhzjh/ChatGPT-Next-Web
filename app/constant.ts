@@ -136,3 +136,11 @@ export const DEFAULT_MODELS = [
 
 export const CHAT_PAGE_SIZE = 15;
 export const MAX_RENDER_MSG_COUNT = 45;
+
+export const AUTO_NOTE_REGEX_LIST = [
+  "(期待)?(我们的?)?((下一?[次回])|(待会儿?)|改天)[再的]?(说|见|聊|继续|交流|[对会]话)",
+  "(我们)?(今天)(的[会对]话)?(就?聊到这吧?|到此为止|就这么多|就这样|就?聊完了|差不多了|(就先|就|先)(到这里?|结束)|就?先这样吧?)",
+  "结束聊天",
+  "到此结束",
+  "就先这样吧",
+];

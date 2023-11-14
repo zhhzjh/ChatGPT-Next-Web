@@ -77,6 +77,7 @@ import {
 } from "./ui-lib";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
+  AUTO_NOTE_REGEX_LIST,
   CHAT_PAGE_SIZE,
   LAST_INPUT_KEY,
   MAX_RENDER_MSG_COUNT,
@@ -98,6 +99,8 @@ const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
 });
 
 type MaskType = "default" | "note";
+
+const checkEndRegex = new RegExp(AUTO_NOTE_REGEX_LIST.join("|"));
 
 export function SessionConfigModel(props: {
   showModalType: MaskType;
@@ -724,10 +727,27 @@ function _Chat() {
     }
   };
 
+  const checkAutoEndChat = (input: string) => {
+    const inputLen = input.length;
+    if (inputLen < 3) return false;
+    const match = checkEndRegex.exec(input);
+    console.log("checkAutoEndChat:", match);
+    return match && inputLen < match[0]?.length * 5;
+  };
+
   const doSubmit = (userInput: string) => {
     console.log("doSubmit:", isOnlyNote);
     if (userInput.trim() === "") return;
     const matchCommand = chatCommands.match(userInput);
+    if (checkAutoEndChat(userInput)) {
+      console.log("auto end");
+      chatStore
+        .onUserInput(userInput, true)
+        .then(() => chatStore.onMakeDiary());
+      setUserInput("");
+      setPromptHints([]);
+      return;
+    }
     if (matchCommand.matched) {
       setUserInput("");
       setPromptHints([]);
@@ -735,6 +755,7 @@ function _Chat() {
       return;
     }
     setIsLoading(!isOnlyNote);
+
     chatStore
       .onUserInput(userInput, isOnlyNote)
       .then(() => setIsLoading(false));

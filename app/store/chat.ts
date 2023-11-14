@@ -405,6 +405,8 @@ export const useChatStore = createPersistStore(
 
         const messageIndex = get().currentSession().messages.length + 1;
 
+        const contextPrompts = session.noteMask.context.slice();
+
         let toBeSummarizedMsgs = session.messages
           .slice(lastNodeIndex || 0)
           .filter((msg) => !msg.isError)
@@ -420,7 +422,7 @@ export const useChatStore = createPersistStore(
 
         // make request
         api.llm.chat({
-          messages: toBeSummarizedMsgs,
+          messages: [...contextPrompts, ...toBeSummarizedMsgs],
           config: {
             ...modelConfig,
             stream: true,
@@ -560,7 +562,8 @@ export const useChatStore = createPersistStore(
           tokenCount += estimateTokenLength(msg.content);
           reversedRecentMessages.push(msg);
         }
-
+        console.log("longTermMemoryPrompts:", longTermMemoryPrompts);
+        console.log("contextPrompts:", contextPrompts);
         // concat all messages
         const recentMessages = [
           ...systemPrompts,

@@ -518,6 +518,7 @@ export function ChatActions(props: {
         text={Locale.Chat.InputActions.Clear}
         icon={<BreakIcon />}
         onClick={() => {
+          console.log("clear");
           chatStore.updateCurrentSession((session) => {
             if (session.clearContextIndex === session.messages.length) {
               session.clearContextIndex = undefined;

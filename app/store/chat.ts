@@ -389,7 +389,10 @@ export const useChatStore = createPersistStore(
           model: modelConfig.model,
         });
 
-        const lastNodeIndex = session.lastNodeIndex;
+        const lastNodeIndex =
+          (session.lastNodeIndex || 0) + 5 >= session.messages.length
+            ? -10
+            : session.lastNodeIndex;
 
         // save user's and bot's message
         get().updateCurrentSession((session) => {
@@ -408,13 +411,14 @@ export const useChatStore = createPersistStore(
         const contextPrompts = session.noteMask.context.slice();
 
         let toBeSummarizedMsgs = session.messages
-          // .slice(lastNodeIndex || 0)
+          .slice(lastNodeIndex || 0)
           .filter((msg) => !msg.isError)
           .slice(0);
 
         // todo: 判定长度超长
         console.log(
-          "toBeSummarizedMsgs:",
+          "onMakeDiary:",
+          contextPrompts,
           session.lastNodeIndex,
           lastNodeIndex,
           toBeSummarizedMsgs,

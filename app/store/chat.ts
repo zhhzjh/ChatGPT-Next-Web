@@ -590,6 +590,9 @@ export const useChatStore = createPersistStore(
       resetSession() {
         get().updateCurrentSession((session) => {
           session.messages = [];
+          session.lastNodeIndex = 0;
+          session.lastSummarizeIndex = 0;
+          session.clearContextIndex = 0;
           session.memoryPrompt = "";
         });
       },

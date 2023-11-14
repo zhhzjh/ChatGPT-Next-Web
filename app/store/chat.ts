@@ -390,7 +390,7 @@ export const useChatStore = createPersistStore(
         });
 
         // 从设置中读取条数
-        const lastNodeIndex = 0 - modelConfig.historyMessageCount;
+        const lastNodeIndex = 0 - (modelConfig?.historyMessageCount || 10);
 
         // save user's and bot's message
         get().updateCurrentSession((session) => {

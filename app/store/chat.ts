@@ -379,7 +379,9 @@ export const useChatStore = createPersistStore(
 
       async onMakeDiary() {
         const session = get().currentSession();
+        if (!session.noteMask) session.noteMask = createEmptyMask();
         const modelConfig = session.noteMask.modelConfig;
+        // const userContent = fillTemplateWith(content, modelConfig);
 
         const botMessage: ChatMessage = createMessage({
           role: "assistant",
@@ -418,13 +420,7 @@ export const useChatStore = createPersistStore(
 
         // make request
         api.llm.chat({
-          messages: toBeSummarizedMsgs.concat(
-            createMessage({
-              role: "system",
-              content: Locale.MakeDiary.Prompt,
-              date: "",
-            }),
-          ),
+          messages: toBeSummarizedMsgs,
           config: {
             ...modelConfig,
             stream: true,

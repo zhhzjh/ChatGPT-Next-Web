@@ -408,7 +408,7 @@ export const useChatStore = createPersistStore(
         const contextPrompts = session.noteMask.context.slice();
 
         let toBeSummarizedMsgs = session.messages
-          .slice(lastNodeIndex || 0)
+          // .slice(lastNodeIndex || 0)
           .filter((msg) => !msg.isError)
           .slice(0);
 

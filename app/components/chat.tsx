@@ -484,7 +484,7 @@ export function ChatActions(props: {
         />
       )}
 
-      <ChatAction
+      {/* <ChatAction
         onClick={nextTheme}
         text={Locale.Chat.InputActions.Theme[theme]}
         icon={
@@ -498,7 +498,7 @@ export function ChatActions(props: {
             ) : null}
           </>
         }
-      />
+      /> */}
 
       <ChatAction
         onClick={props.showPromptHints}
@@ -519,14 +519,15 @@ export function ChatActions(props: {
         icon={<BreakIcon />}
         onClick={() => {
           console.log("clear");
-          chatStore.updateCurrentSession((session) => {
-            if (session.clearContextIndex === session.messages.length) {
-              session.clearContextIndex = undefined;
-            } else {
-              session.clearContextIndex = session.messages.length;
-              session.memoryPrompt = ""; // will clear memory
-            }
-          });
+          chatStore.resetSession();
+          // chatStore.updateCurrentSession((session) => {
+          //   if (session.clearContextIndex === session.messages.length) {
+          //     session.clearContextIndex = undefined;
+          //   } else {
+          //     session.clearContextIndex = session.messages.length;
+          //     session.memoryPrompt = ""; // will clear memory
+          //   }
+          // });
         }}
       />
 

@@ -426,7 +426,6 @@ export const useChatStore = createPersistStore(
           config: {
             ...modelConfig,
             stream: true,
-            model: getSummarizeModel(session.noteMask.modelConfig.model),
           },
           onUpdate(message) {
             botMessage.streaming = true;

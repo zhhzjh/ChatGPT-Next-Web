@@ -429,13 +429,10 @@ export const useChatStore = createPersistStore(
         const contextPrompts = session.noteMask.context.slice();
         let beforeMessages: ChatMessage[] = [];
         let afterMessages: ChatMessage[] = [];
-
-        if (session.noteMask.beforeLength >= 0) {
-          beforeMessages = contextPrompts.slice(
-            0,
-            session.noteMask.beforeLength,
-          );
-          afterMessages = contextPrompts.slice(session.noteMask.beforeLength);
+        const before = session.noteMask.beforeLength || -1;
+        if (before >= 0) {
+          beforeMessages = contextPrompts.slice(0, before);
+          afterMessages = contextPrompts.slice(before);
         } else {
           beforeMessages = contextPrompts.slice();
           afterMessages = [];

@@ -17,7 +17,7 @@ export type Mask = {
   modelConfig: ModelConfig;
   lang: Lang;
   builtin: boolean;
-  beforeLength: number;
+  beforeLength?: number;
 };
 
 export const DEFAULT_MASK_STATE = {

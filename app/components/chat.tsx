@@ -526,11 +526,11 @@ export function ChatActions(props: {
           }}
         />
       )} */}
-      <ChatAction
+      {/* <ChatAction
         onClick={() => props.showPromptModal("note")}
         text={Locale.Chat.InputActions.NoteSettings}
         icon={<RobotIcon />}
-      />
+      /> */}
       <ChatAction
         text={Locale.Chat.InputActions.Clear}
         icon={<BreakIcon />}

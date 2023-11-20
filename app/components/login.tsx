@@ -16,7 +16,7 @@ export function LoginPage() {
   const navigate = useNavigate();
   const user = { username: "", password: "" };
 
-  const goLogin = () => {
+  const goLogin = async () => {
     if (user.username === "") {
       showToast("请输入用户名");
       return;
@@ -25,7 +25,7 @@ export function LoginPage() {
       showToast("请输入密码");
       return;
     }
-    const loginUser = login(user);
+    const loginUser = await login(user);
     if (loginUser && loginUser.id) {
       showToast("login success");
       setTimeout(() => navigate(Path.Home), 300);

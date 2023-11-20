@@ -109,7 +109,7 @@ export function MaskConfig(props: {
         <ListItem title={Locale.Mask.Config.BeforeLength}>
           <InputRange
             title={props.mask.beforeLength?.toString() || "未定义"}
-            value={props.mask.beforeLength}
+            value={props.mask.beforeLength || ""}
             min="0"
             max="64"
             step="1"

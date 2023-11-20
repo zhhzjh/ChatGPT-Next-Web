@@ -399,9 +399,9 @@ export const useChatStore = createPersistStore(
 
       async onMakeDiary(isOnlyNote = false) {
         const session = get().currentSession();
-        // if (!session.noteMask) session.noteMask = createEmptyMask();
-        // const modelConfig = session.noteMask.modelConfig;
-        const modelConfig = session.mask.modelConfig;
+        if (!session.noteMask) session.noteMask = createEmptyMask();
+        const modelConfig = session.noteMask.modelConfig;
+        // const modelConfig = session.mask.modelConfig;
 
         const botMessage: ChatMessage = createMessage({
           role: "assistant",
@@ -426,28 +426,20 @@ export const useChatStore = createPersistStore(
 
         const messageIndex = get().currentSession().messages.length + 1;
 
-        // const contextPrompts = session.noteMask.context.slice();
+        const contextPrompts = session.noteMask.context.slice();
+        let beforeMessages: ChatMessage[] = [];
+        let afterMessages: ChatMessage[] = [];
 
-        const beforeMessages: ChatMessage[] = (
-          isOnlyNote
-            ? Locale.MakeDiary.diary.befores
-            : Locale.MakeDiary.chat.befores
-        ).map((prompt) =>
-          createMessage({
-            role: prompt.role as "user" | "system" | "assistant" | undefined,
-            content: prompt.content,
-          }),
-        );
-        const afterMessages: ChatMessage[] = (
-          isOnlyNote
-            ? Locale.MakeDiary.diary.afters
-            : Locale.MakeDiary.chat.afters
-        ).map((prompt) =>
-          createMessage({
-            role: prompt.role as "user" | "system" | "assistant" | undefined,
-            content: prompt.content,
-          }),
-        );
+        if (session.noteMask.beforeLength >= 0) {
+          beforeMessages = contextPrompts.slice(
+            0,
+            session.noteMask.beforeLength,
+          );
+          afterMessages = contextPrompts.slice(session.noteMask.beforeLength);
+        } else {
+          beforeMessages = contextPrompts.slice();
+          afterMessages = [];
+        }
 
         let toBeSummarizedMsgs = session.messages
           .slice(lastNodeIndex || 0)

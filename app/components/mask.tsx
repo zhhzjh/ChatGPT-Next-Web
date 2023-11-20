@@ -49,6 +49,7 @@ import {
   Draggable,
   OnDragEndResponder,
 } from "@hello-pangea/dnd";
+import { InputRange } from "./input-range";
 
 // drag and drop helper function
 function reorder<T>(list: T[], startIndex: number, endIndex: number): T[] {
@@ -104,9 +105,24 @@ export function MaskConfig(props: {
           props.updateMask((mask) => (mask.context = context));
         }}
       />
-
       <List>
-        <ListItem title={Locale.Mask.Config.Avatar}>
+        <ListItem title={Locale.Mask.Config.BeforeLength}>
+          <InputRange
+            title={props.mask.beforeLength?.toString() || "未定义"}
+            value={props.mask.beforeLength}
+            min="0"
+            max="64"
+            step="1"
+            onChange={(e) =>
+              props.updateMask(
+                (mask) => (mask.beforeLength = e.target.valueAsNumber),
+              )
+            }
+          ></InputRange>
+        </ListItem>
+      </List>
+      <List>
+        <ListItem title={Locale.Mask.Config.BeforeLength}>
           <Popover
             content={
               <AvatarPicker

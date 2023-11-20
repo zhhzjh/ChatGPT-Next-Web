@@ -423,6 +423,7 @@ const cn = {
     },
     Config: {
       Avatar: "角色头像",
+      BeforeLength: "前置对话长度",
       Name: "角色名称",
       Sync: {
         Title: "使用全局设置",

@@ -429,6 +429,7 @@ const en: LocaleType = {
     },
     Config: {
       Avatar: "Bot Avatar",
+      BeforeLength: "前置对话长度",
       Name: "Bot Name",
       Sync: {
         Title: "Use Global Config",

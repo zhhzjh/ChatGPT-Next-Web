@@ -526,11 +526,11 @@ export function ChatActions(props: {
           }}
         />
       )} */}
-      {/* <ChatAction
+      <ChatAction
         onClick={() => props.showPromptModal("note")}
         text={Locale.Chat.InputActions.NoteSettings}
         icon={<RobotIcon />}
-      /> */}
+      />
       <ChatAction
         text={Locale.Chat.InputActions.Clear}
         icon={<BreakIcon />}
@@ -721,6 +721,7 @@ function _Chat() {
   };
 
   const submitRecord = (audio: Blob) => {
+    console.log("submitRecord:", audio);
     chatStore.onRecordComplete(audio).then((result) => {
       console.log("result:", result);
       if (result && inputRef?.current) {
@@ -1372,6 +1373,7 @@ function _Chat() {
               AudioRecorderPauseResumeClass: styles["chat-input-record-hiden"],
               AudioRecorderDiscardClass: styles["chat-input-record-hiden"],
             }}
+            downloadOnSavePress
             onRecordingComplete={(audioBlob) => {
               submitRecord(audioBlob);
             }}

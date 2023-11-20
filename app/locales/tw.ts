@@ -258,6 +258,7 @@ const tw: PartialLocaleType = {
       Clone: "複製預設",
     },
     Config: {
+      BeforeLength: "前置对话长度",
       Avatar: "角色頭像",
       Name: "角色名稱",
     },

@@ -3,13 +3,11 @@ import { IconButton } from "./button";
 
 import { useNavigate } from "react-router-dom";
 import { Path } from "../constant";
-import { useAccessStore } from "../store";
 import Locale from "../locales";
 
-import BotIcon from "../icons/bot.svg";
 import { useEffect } from "react";
 import { getClientConfig } from "../config/client";
-import { Toast, showToast } from "./ui-lib";
+import { showToast } from "./ui-lib";
 import { login } from "../request/user";
 
 export function LoginPage() {

@@ -80,6 +80,8 @@ const en: LocaleType = {
       return inputHints + ", / to search prompts, : to use commands";
     },
     Send: "Send",
+    Record: "Record",
+    Stop: "Stop",
     Config: {
       Reset: "Reset to Default",
       SaveAs: "Save as Mask",
@@ -320,6 +322,54 @@ const en: LocaleType = {
   MakeDiary: {
     Prompt:
       "根据上面的对话生成一篇育儿笔记，笔记角度以对话中的妈妈角度和口吻来写，其中知识占笔记篇幅的1/4，其余是对话，两个部分要融合，不要割裂。笔记文风轻松平和，如实映射对话的情绪基调，不必夸大其中的喜悦和悲哀。格式上可以有弹性，灵活布局，全篇加入各样的emoji，表现一种日式手账的风格。",
+    chat: {
+      befores: [
+        {
+          role: "system",
+          content:
+            "你是一位访谈记者。你的工作是将访谈的内容整理成文章，你会使用第三人称撰写访谈对象的经验与故事。",
+        },
+        {
+          role: "user",
+          content: "让我们欢迎受访者，请记得今年是2023年。",
+        },
+        {
+          role: "assistant",
+          content: "您好，受訪者，請告訴我有關於您的故事。",
+        },
+      ],
+      afters: [
+        {
+          role: "user",
+          content:
+            "让我们感谢受访者，以上就是关于受访者的一些故事。请统整上面这些口语的内容，不要美化或装饰。",
+        },
+        {
+          role: "assistant",
+          content:
+            "好的，我将会依照受访者故事中事件发生的时间顺序来撰写纪录。以下是受访者的故事：",
+        },
+      ],
+    },
+    diary: {
+      befores: [
+        {
+          role: "user",
+          content: "请根据以下提供的内容，整理出条列式的编年史：",
+        },
+      ],
+      afters: [
+        {
+          role: "user",
+          content: "请不要在条列式的编年史中美化或装饰内容。",
+        },
+        {
+          role: "assistant",
+          content:
+            "好的，今年是2023年，我会帮你估算内容中事件发生的时间，以下是你的条列式编年史内容：",
+        },
+      ],
+    },
   },
   Store: {
     DefaultTopic: "New Conversation",

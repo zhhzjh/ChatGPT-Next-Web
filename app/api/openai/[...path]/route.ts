@@ -5,6 +5,7 @@ import { prettyObject } from "@/app/utils/format";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "../../auth";
 import { requestOpenai } from "../../common";
+import { requestWhisper } from "../../whisper";
 
 const ALLOWD_PATH = new Set(Object.values(OpenaiPath));
 
@@ -31,7 +32,6 @@ async function handle(
   }
 
   const subpath = params.path.join("/");
-
   if (!ALLOWD_PATH.has(subpath)) {
     console.log("[OpenAI Route] forbidden path ", subpath);
     return NextResponse.json(
@@ -53,10 +53,15 @@ async function handle(
   }
 
   try {
-    const response = await requestOpenai(req);
+    let response;
+    if (subpath === OpenaiPath.WhisperPath) {
+      response = await requestWhisper(req);
+    } else {
+      response = await requestOpenai(req);
+    }
 
     // list models
-    if (subpath === OpenaiPath.ListModelPath && response.status === 200) {
+    if (subpath === OpenaiPath.ListModelPath && response?.status === 200) {
       const resJson = (await response.json()) as OpenAIListModelResponse;
       const availableModels = getModels(resJson);
       return NextResponse.json(availableModels, {
@@ -74,4 +79,4 @@ async function handle(
 export const GET = handle;
 export const POST = handle;
 
-export const runtime = "edge";
+export const runtime = "nodejs";

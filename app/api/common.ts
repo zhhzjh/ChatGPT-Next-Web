@@ -20,7 +20,7 @@ export async function requestOpenai(req: NextRequest) {
     baseUrl = `${PROTOCOL}://${baseUrl}`;
   }
 
-  if (baseUrl.endsWith('/')) {
+  if (baseUrl.endsWith("/")) {
     baseUrl = baseUrl.slice(0, -1);
   }
 
@@ -31,9 +31,14 @@ export async function requestOpenai(req: NextRequest) {
     console.log("[Org ID]", process.env.OPENAI_ORG_ID);
   }
 
-  const timeoutId = setTimeout(() => {
-    controller.abort();
-  }, 10 * 60 * 1000);
+  const timeoutId = setTimeout(
+    () => {
+      controller.abort();
+    },
+    10 * 60 * 1000,
+  );
+
+  console.log("[req body]:", req.body);
 
   const fetchUrl = `${baseUrl}/${openaiPath}`;
   const fetchOptions: RequestInit = {
@@ -59,7 +64,7 @@ export async function requestOpenai(req: NextRequest) {
     try {
       const clonedBody = await req.text();
       fetchOptions.body = clonedBody;
-
+      console.log("request body:", clonedBody);
       const jsonBody = JSON.parse(clonedBody);
 
       if ((jsonBody?.model ?? "").includes("gpt-4")) {

@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { getServerSideConfig } from "../config/server";
 import md5 from "spark-md5";
 import { ACCESS_CODE_PREFIX } from "../constant";
+import OpenAI from "openai";
 
 function getIP(req: NextRequest) {
   let ip = req.ip ?? req.headers.get("x-real-ip");
@@ -62,4 +63,19 @@ export function auth(req: NextRequest) {
   return {
     error: false,
   };
+}
+
+const openai = new OpenAI({ apiKey: getServerSideConfig().apiKey });
+
+export function getOpenai(req?: NextRequest) {
+  const authToken = req?.headers.get("Authorization") ?? "";
+
+  // check if it is openai api key or user token
+  const { accessCode, apiKey: token } = parseApiKey(authToken);
+  if (token) {
+    openai.apiKey = token;
+  } else {
+    openai.apiKey = getServerSideConfig().apiKey || "";
+  }
+  return openai;
 }

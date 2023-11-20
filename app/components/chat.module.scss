@@ -496,7 +496,7 @@
   background-color: var(--white);
   color: var(--black);
   font-family: inherit;
-  padding: 10px 90px 10px 14px;
+  padding: 10px 90px 10px 60px;
   resize: none;
   outline: none;
   box-sizing: border-box;
@@ -514,6 +514,29 @@
   position: absolute;
   right: 30px;
   bottom: 32px;
+}
+
+.chat-input-record {
+  position: absolute;
+  left: 30px;
+  bottom: 32px;
+  display: flex;
+  justify-content: center;
+
+  .chat-input-record-hiden {
+    display: none;
+  }
+
+  &:global(.recording) {
+    z-index: 10;
+    left: 30px;
+    bottom: 60px;
+    height: 80px;
+
+    :global(.audio-recorder-status) {
+      display: none;
+    }
+  }
 }
 
 @media only screen and (max-width: 600px) {

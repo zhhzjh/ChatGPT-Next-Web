@@ -15,6 +15,7 @@ export enum Path {
   Home = "/",
   Chat = "/chat",
   Settings = "/settings",
+  Record = "/record",
   NewChat = "/new-chat",
   Masks = "/masks",
   Auth = "/auth",
@@ -53,7 +54,7 @@ export const ACCESS_CODE_PREFIX = "nk-";
 export const LAST_INPUT_KEY = "last-input";
 export const UNFINISHED_INPUT = (id: string) => "unfinished-input-" + id;
 
-export const STORAGE_KEY = "ruxi5";
+export const STORAGE_KEY = "ruxi9";
 
 export const REQUEST_TIMEOUT_MS = 60000;
 
@@ -61,6 +62,7 @@ export const EXPORT_MESSAGE_CLASS_NAME = "export-markdown";
 
 export const OpenaiPath = {
   ChatPath: "v1/chat/completions",
+  WhisperPath: "v1/audio/translations",
   UsagePath: "dashboard/billing/usage",
   SubsPath: "dashboard/billing/subscription",
   ListModelPath: "v1/models",
@@ -76,6 +78,10 @@ Current time: {{time}}
 export const SUMMARIZE_MODEL = "gpt-4";
 
 export const DEFAULT_MODELS = [
+  {
+    name: "whisper-1",
+    available: true,
+  },
   {
     name: "gpt-4",
     available: true,

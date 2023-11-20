@@ -290,6 +290,26 @@ export const useChatStore = createPersistStore(
         get().summarizeSession();
       },
 
+      onRecordComplete(audio: Blob) {
+        return new Promise<string>((resolve, reject) =>
+          api.llm.whisper({
+            audio: audio,
+            config: { model: "whisper-1", stream: true },
+            onUpdate(message) {
+              console.log("update:", message);
+            },
+            onFinish(message) {
+              console.log("message:", message);
+              resolve((JSON.parse(message).body as string) || "");
+            },
+            onError(error) {
+              console.error("[Chat] failed ", error);
+              reject();
+            },
+          }),
+        );
+      },
+
       async onUserInput(content: string, isOnlyNote: boolean = false) {
         const session = get().currentSession();
         const modelConfig = session.mask.modelConfig;
@@ -377,11 +397,11 @@ export const useChatStore = createPersistStore(
         });
       },
 
-      async onMakeDiary() {
+      async onMakeDiary(isOnlyNote = false) {
         const session = get().currentSession();
-        if (!session.noteMask) session.noteMask = createEmptyMask();
-        const modelConfig = session.noteMask.modelConfig;
-        // const userContent = fillTemplateWith(content, modelConfig);
+        // if (!session.noteMask) session.noteMask = createEmptyMask();
+        // const modelConfig = session.noteMask.modelConfig;
+        const modelConfig = session.mask.modelConfig;
 
         const botMessage: ChatMessage = createMessage({
           role: "assistant",
@@ -406,7 +426,28 @@ export const useChatStore = createPersistStore(
 
         const messageIndex = get().currentSession().messages.length + 1;
 
-        const contextPrompts = session.noteMask.context.slice();
+        // const contextPrompts = session.noteMask.context.slice();
+
+        const beforeMessages: ChatMessage[] = (
+          isOnlyNote
+            ? Locale.MakeDiary.diary.befores
+            : Locale.MakeDiary.chat.befores
+        ).map((prompt) =>
+          createMessage({
+            role: prompt.role as "user" | "system" | "assistant" | undefined,
+            content: prompt.content,
+          }),
+        );
+        const afterMessages: ChatMessage[] = (
+          isOnlyNote
+            ? Locale.MakeDiary.diary.afters
+            : Locale.MakeDiary.chat.afters
+        ).map((prompt) =>
+          createMessage({
+            role: prompt.role as "user" | "system" | "assistant" | undefined,
+            content: prompt.content,
+          }),
+        );
 
         let toBeSummarizedMsgs = session.messages
           .slice(lastNodeIndex || 0)
@@ -416,7 +457,7 @@ export const useChatStore = createPersistStore(
         // todo: 判定长度超长
         console.log(
           "onMakeDiary:",
-          contextPrompts,
+          // contextPrompts,
           session.lastNodeIndex,
           lastNodeIndex,
           toBeSummarizedMsgs,
@@ -424,7 +465,11 @@ export const useChatStore = createPersistStore(
 
         // make request
         api.llm.chat({
-          messages: [...contextPrompts, ...toBeSummarizedMsgs],
+          messages: [
+            ...beforeMessages,
+            ...toBeSummarizedMsgs,
+            ...afterMessages,
+          ],
           config: {
             ...modelConfig,
             stream: true,

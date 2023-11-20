@@ -6,7 +6,15 @@ import {
 } from "@/app/constant";
 import { useAccessStore, useAppConfig, useChatStore } from "@/app/store";
 
-import { ChatOptions, getHeaders, LLMApi, LLMModel, LLMUsage } from "../api";
+import {
+  AudioOptions,
+  ChatOptions,
+  getFileHeaders,
+  getHeaders,
+  LLMApi,
+  LLMModel,
+  LLMUsage,
+} from "../api";
 import Locale from "../../locales";
 import {
   EventStreamContentType,
@@ -184,6 +192,103 @@ export class ChatGPTApi implements LLMApi {
     } catch (e) {
       console.log("[Request] failed to make a chat request", e);
       options.onError?.(e as Error);
+    }
+  }
+
+  async whisper(options: AudioOptions) {
+    const controller = new AbortController();
+    const shouldStream = !!options.config.stream;
+    const whisperPath = this.path(OpenaiPath.WhisperPath);
+    const extractMessage = this.extractMessage;
+    const formData = new FormData();
+    formData.append("file", options.audio, "audio.webp");
+
+    const chatPayload = {
+      method: "POST",
+      body: formData,
+      signal: controller.signal,
+      headers: getFileHeaders(),
+    };
+
+    // make a fetch request
+    const requestTimeoutId = setTimeout(
+      () => controller.abort(),
+      REQUEST_TIMEOUT_MS,
+    );
+
+    if (shouldStream) {
+      let responseText = "";
+      let finished = false;
+
+      const finish = () => {
+        if (!finished) {
+          options.onFinish(responseText);
+          finished = true;
+        }
+      };
+
+      controller.signal.onabort = finish;
+
+      fetchEventSource(whisperPath, {
+        ...chatPayload,
+        async onopen(res) {
+          clearTimeout(requestTimeoutId);
+          const contentType = res.headers.get("content-type");
+          console.log("[OpenAI] request response content type: ", contentType);
+
+          if (contentType?.startsWith("text/plain")) {
+            responseText = await res.clone().text();
+            return finish();
+          }
+
+          if (
+            !res.ok ||
+            !res.headers
+              .get("content-type")
+              ?.startsWith(EventStreamContentType) ||
+            res.status !== 200
+          ) {
+            if (res.status === 401) {
+              return finish();
+            }
+
+            responseText = await res.clone().text();
+            return finish();
+          }
+        },
+        onmessage(msg) {
+          if (msg.data === "[DONE]" || finished) {
+            return finish();
+          }
+          const text = msg.data;
+          try {
+            const json = JSON.parse(text);
+            const delta = json.choices[0].delta.content;
+            if (delta) {
+              responseText += delta;
+              options.onUpdate?.(responseText, delta);
+            }
+          } catch (e) {
+            console.error("[Request] parse error", text, msg);
+          }
+        },
+        onclose() {
+          finish();
+        },
+        onerror(e) {
+          options.onError?.(e);
+          throw e;
+        },
+        openWhenHidden: true,
+      });
+    } else {
+      const res = await fetch(whisperPath, chatPayload);
+      clearTimeout(requestTimeoutId);
+
+      const resJson = await res.json();
+      console.log("res：", res);
+      const message = extractMessage(resJson);
+      options.onFinish(message);
     }
   }
   async usage() {

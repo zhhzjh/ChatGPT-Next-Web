@@ -33,6 +33,16 @@ export interface ChatOptions {
   onController?: (controller: AbortController) => void;
 }
 
+export interface AudioOptions {
+  audio: Blob;
+  config: LLMConfig;
+
+  onUpdate?: (message: string, chunk: string) => void;
+  onFinish: (message: string) => void;
+  onError?: (err: Error) => void;
+  onController?: (controller: AbortController) => void;
+}
+
 export interface LLMUsage {
   used: number;
   total: number;
@@ -45,6 +55,7 @@ export interface LLMModel {
 
 export abstract class LLMApi {
   abstract chat(options: ChatOptions): Promise<void>;
+  abstract whisper(options: AudioOptions): Promise<void>;
   abstract usage(): Promise<LLMUsage>;
   abstract models(): Promise<LLMModel[]>;
 }
@@ -146,5 +157,27 @@ export function getHeaders() {
     );
   }
 
+  return headers;
+}
+
+export function getFileHeaders() {
+  const accessStore = useAccessStore.getState();
+  let headers: Record<string, string> = {};
+
+  const makeBearer = (token: string) => `Bearer ${token.trim()}`;
+  const validString = (x: string) => x && x.length > 0;
+
+  // use user's api key first
+  if (validString(accessStore.token)) {
+    headers.Authorization = makeBearer(accessStore.token);
+  } else if (
+    accessStore.enabledAccessControl() &&
+    validString(accessStore.accessCode)
+  ) {
+    headers.Authorization = makeBearer(
+      ACCESS_CODE_PREFIX + accessStore.accessCode,
+    );
+  }
+  console.log("getFileHeaders:", headers);
   return headers;
 }

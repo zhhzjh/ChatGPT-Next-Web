@@ -1,5 +1,5 @@
 // export const BASE_URL = "http://localhost:3001";
-export const BASE_URL = "https://api.nanshan518.com/";
+export const BASE_URL = "https://api.nanshan518.com";
 
 export const API_USER = {
   LOGIN: "/user/login",

@@ -60,9 +60,9 @@ export const DEFAULT_CONFIG = {
   },
 };
 
-export type ChatConfig = typeof DEFAULT_CONFIG;
+export type ChatMaskConfig = typeof DEFAULT_CONFIG;
 
-export type ModelConfig = ChatConfig["modelConfig"];
+export type ModelConfig = ChatMaskConfig["modelConfig"];
 
 export function limitNumber(
   x: number,
@@ -140,7 +140,7 @@ export const useAppConfig = createPersistStore(
     name: StoreKey.Config,
     version: 3.8,
     migrate(persistedState, version) {
-      const state = persistedState as ChatConfig;
+      const state = persistedState as ChatMaskConfig;
 
       if (version < 3.4) {
         state.modelConfig.sendMemory = true;

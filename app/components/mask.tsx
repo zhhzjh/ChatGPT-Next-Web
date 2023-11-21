@@ -122,7 +122,7 @@ export function MaskConfig(props: {
         </ListItem>
       </List>
       <List>
-        <ListItem title={Locale.Mask.Config.BeforeLength}>
+        <ListItem title={Locale.Mask.Config.Avatar}>
           <Popover
             content={
               <AvatarPicker
@@ -519,14 +519,13 @@ export function MaskPage() {
                 </option>
               ))}
             </Select>
-
             <IconButton
               className={styles["mask-create"]}
               icon={<AddIcon />}
               text={Locale.Mask.Page.Create}
               bordered
-              onClick={() => {
-                const createdMask = maskStore.create();
+              onClick={async () => {
+                const createdMask = await maskStore.create();
                 setEditingMaskId(createdMask.id);
               }}
             />

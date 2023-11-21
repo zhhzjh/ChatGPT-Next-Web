@@ -1,8 +1,8 @@
 import { showToast } from "../components/ui-lib";
-import { BASE_URL } from "./constant";
+import { API_USER, BASE_URL } from "./constant";
 
 export const login = async (user: { username: string; password: string }) => {
-  const result = await fetch(BASE_URL + "/user/login", {
+  const result = await fetch(BASE_URL + API_USER.LOGIN, {
     body: JSON.stringify({ ...user }),
     headers: {
       "Content-Type": "application/json",

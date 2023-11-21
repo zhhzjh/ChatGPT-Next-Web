@@ -14,6 +14,7 @@ export const DEFAULT_API_HOST = `${DEFAULT_CORS_HOST}/api/proxy`;
 export enum Path {
   Home = "/",
   Chat = "/chat",
+  ChatSetting = "/chat-setting",
   Settings = "/settings",
   Record = "/record",
   NewChat = "/new-chat",
@@ -150,4 +151,9 @@ export const AUTO_NOTE_REGEX_LIST = [
   "结束聊天",
   "到此结束",
   "就先这样吧",
+];
+
+export const CHAT_LIST = [
+  { id: "539074ba-b6b1-469f-a4f0-266b30bf0858", name: "情感陪伴" },
+  { id: "c14a7260-c2aa-4a7d-9ebf-ba099fec972f", name: "专业问答" },
 ];

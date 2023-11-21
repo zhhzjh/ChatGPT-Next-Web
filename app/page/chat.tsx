@@ -1,23 +1,13 @@
 import { useDebouncedCallback } from "use-debounce";
-import React, {
-  useState,
-  useRef,
-  useEffect,
-  useMemo,
-  useCallback,
-  Fragment,
-} from "react";
+import React, { useState, useRef, useEffect, useMemo, Fragment } from "react";
 
 import SendWhiteIcon from "../icons/send-white.svg";
 import BrainIcon from "../icons/brain.svg";
 import RenameIcon from "../icons/rename.svg";
 import ExportIcon from "../icons/share.svg";
-import DiaryIcon from "../icons/diary.svg";
 import ReturnIcon from "../icons/return.svg";
 import CopyIcon from "../icons/copy.svg";
 import LoadingIcon from "../icons/three-dots.svg";
-import PromptIcon from "../icons/prompt.svg";
-import MaskIcon from "../icons/mask.svg";
 import NoteIcon from "../icons/notes.svg";
 import MaxIcon from "../icons/max.svg";
 import MinIcon from "../icons/min.svg";
@@ -30,13 +20,9 @@ import EditIcon from "../icons/rename.svg";
 import ConfirmIcon from "../icons/confirm.svg";
 import CancelIcon from "../icons/cancel.svg";
 
-import LightIcon from "../icons/light.svg";
-import DarkIcon from "../icons/dark.svg";
-import AutoIcon from "../icons/auto.svg";
 import BottomIcon from "../icons/bottom.svg";
 import StopIcon from "../icons/pause.svg";
 import RobotIcon from "../icons/robot.svg";
-import { AudioRecorder } from "react-audio-voice-recorder";
 
 import {
   ChatMessage,
@@ -48,7 +34,6 @@ import {
   Theme,
   useAppConfig,
   DEFAULT_TOPIC,
-  ModelType,
 } from "../store";
 
 import {
@@ -64,55 +49,46 @@ import { ChatControllerPool } from "../client/controller";
 import { Prompt, usePromptStore } from "../store/prompt";
 import Locale from "../locales";
 
-import { IconButton } from "./button";
+import { IconButton } from "../components/button";
 import styles from "./chat.module.scss";
 
 import {
   List,
   ListItem,
   Modal,
-  Selector,
   showConfirm,
   showPrompt,
   showToast,
-} from "./ui-lib";
-import { useLocation, useNavigate } from "react-router-dom";
+} from "../components/ui-lib";
+import { useNavigate } from "react-router-dom";
 import {
   AUTO_NOTE_REGEX_LIST,
   CHAT_PAGE_SIZE,
   LAST_INPUT_KEY,
-  MAX_RENDER_MSG_COUNT,
   Path,
   REQUEST_TIMEOUT_MS,
   UNFINISHED_INPUT,
 } from "../constant";
-import { Avatar } from "./emoji";
-import { ContextPrompts, MaskAvatar, MaskConfig } from "./mask";
+import { Avatar } from "../components/emoji";
+import { ContextPrompts, MaskAvatar, MaskConfig } from "../components/mask";
 import { createEmptyMask, useMaskStore } from "../store/mask";
 import { ChatCommandPrefix, useChatCommand, useCommand } from "../command";
 import { prettyObject } from "../utils/format";
-import { ExportMessageModal } from "./exporter";
+import { ExportMessageModal } from "../components/exporter";
 import { getClientConfig } from "../config/client";
-import { useMessageSelector } from "./message-selector";
+import { useMessageSelector } from "../components/message-selector";
+import { AudioRecorder } from "react-audio-voice-recorder";
 
-const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
-  loading: () => <LoadingIcon />,
-});
+const Markdown = dynamic(
+  async () => (await import("../components/markdown")).Markdown,
+  {
+    loading: () => <LoadingIcon />,
+  },
+);
 
 type MaskType = "default" | "note";
 
 const checkEndRegex = new RegExp(AUTO_NOTE_REGEX_LIST.join("|"));
-
-// savefile
-const saveFile = async (blob: Blob) => {
-  const a = document.createElement("a");
-  a.download = "my-file.txt";
-  a.href = URL.createObjectURL(blob);
-  a.addEventListener("click", (e) => {
-    setTimeout(() => URL.revokeObjectURL(a.href), 30 * 1000);
-  });
-  a.click();
-};
 
 export function SessionConfigModel(props: {
   showModalType: MaskType;
@@ -575,7 +551,7 @@ export function ChatActions(props: {
         }}
       />
 
-      {/* <ListItem
+      <ListItem
         className={styles["chat-only-note"]}
         title={Locale.Chat.InputActions.OnlyNote}
       >
@@ -586,7 +562,7 @@ export function ChatActions(props: {
             props.setIsOnlyNote(e.currentTarget.checked);
           }}
         ></input>
-      </ListItem> */}
+      </ListItem>
     </div>
   );
 }
@@ -631,10 +607,10 @@ export function EditMessageModal(props: { onClose: () => void }) {
           >
             <input
               type="text"
-              value={session.topic}
+              value={session.name}
               onInput={(e) =>
                 chatStore.updateCurrentSession(
-                  (session) => (session.topic = e.currentTarget.value),
+                  (session) => (session.name = e.currentTarget.value),
                 )
               }
             ></input>
@@ -653,7 +629,7 @@ export function EditMessageModal(props: { onClose: () => void }) {
   );
 }
 
-function _Record() {
+function _Chat() {
   type RenderMessage = ChatMessage & { preview?: boolean };
 
   const chatStore = useChatStore();
@@ -670,14 +646,8 @@ function _Record() {
   const { submitKey, shouldSubmit } = useSubmitHandler();
   const { scrollRef, setAutoScroll, scrollDomToBottom } = useScrollToBottom();
   const [hitBottom, setHitBottom] = useState(true);
-  const [isRecord, setIsRecord] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
-    null,
-  );
   const isMobileScreen = useMobileScreen();
   const navigate = useNavigate();
-
-  let chunks: Array<Blob> = [];
 
   // prompt hints
   const promptStore = usePromptStore();
@@ -754,6 +724,7 @@ function _Record() {
   };
 
   const submitRecord = (audio: Blob) => {
+    console.log("submitRecord:", audio);
     chatStore.onRecordComplete(audio).then((result) => {
       console.log("result:", result);
       if (result && inputRef?.current) {
@@ -1156,7 +1127,7 @@ function _Record() {
             className={`window-header-main-title ${styles["chat-body-main-title"]}`}
             onClickCapture={() => setIsEditingMessage(true)}
           >
-            {!session.topic ? DEFAULT_TOPIC : session.topic}
+            {!session.name ? DEFAULT_TOPIC : session.name}
           </div>
           <div className="window-header-sub-title">
             {Locale.Chat.SubTitle(session.messages.length)}
@@ -1399,17 +1370,23 @@ function _Record() {
               fontSize: config.fontSize,
             }}
           />
-          {/* <IconButton
-            icon={<SendWhiteIcon />}
-            text={isRecord ? Locale.Chat.Stop : Locale.Chat.Record}
-            className={styles["chat-input-send"]}
-            type="primary"
-            onClick={() => doRecord()}
-          /> */}
           <AudioRecorder
+            classes={{
+              AudioRecorderClass: styles["chat-input-record"],
+              AudioRecorderPauseResumeClass: styles["chat-input-record-hiden"],
+              AudioRecorderDiscardClass: styles["chat-input-record-hiden"],
+            }}
+            downloadOnSavePress
             onRecordingComplete={(audioBlob) => {
               submitRecord(audioBlob);
             }}
+          />
+          <IconButton
+            icon={<SendWhiteIcon />}
+            text={Locale.Chat.Send}
+            className={styles["chat-input-send"]}
+            type="primary"
+            onClick={() => doSubmit(userInput)}
           />
         </div>
       </div>
@@ -1429,8 +1406,8 @@ function _Record() {
   );
 }
 
-export function Record() {
+export function Chat() {
   const chatStore = useChatStore();
   const sessionIndex = chatStore.currentSessionIndex;
-  return <_Record key={sessionIndex}></_Record>;
+  return <_Chat key={sessionIndex}></_Chat>;
 }

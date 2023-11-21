@@ -5,10 +5,11 @@ import { ModelConfig, useAppConfig } from "./config";
 import { StoreKey } from "../constant";
 import { nanoid } from "nanoid";
 import { createPersistStore } from "../utils/store";
+import { createMask } from "../request/mask";
 
 export type Mask = {
   id: string;
-  createdAt: number;
+  createdAt?: number;
   avatar: string;
   name: string;
   hideContext?: boolean;
@@ -18,6 +19,7 @@ export type Mask = {
   lang: Lang;
   builtin: boolean;
   beforeLength?: number;
+  createUserId?: string;
 };
 
 export const DEFAULT_MASK_STATE = {
@@ -29,7 +31,8 @@ export type MaskState = typeof DEFAULT_MASK_STATE;
 export const DEFAULT_MASK_AVATAR = "gpt-bot";
 export const createEmptyMask = () =>
   ({
-    id: nanoid(),
+    id: "",
+    // id: nanoid(),
     avatar: DEFAULT_MASK_AVATAR,
     name: DEFAULT_TOPIC,
     context: [],
@@ -37,7 +40,6 @@ export const createEmptyMask = () =>
     modelConfig: { ...useAppConfig.getState().modelConfig },
     lang: getLang(),
     builtin: false,
-    createdAt: Date.now(),
     beforeLength: -1,
   }) as Mask;
 
@@ -45,20 +47,27 @@ export const useMaskStore = createPersistStore(
   { ...DEFAULT_MASK_STATE },
 
   (set, get) => ({
-    create(mask?: Partial<Mask>) {
+    async create(mask?: Partial<Mask>) {
       const masks = get().masks;
-      const id = nanoid();
-      masks[id] = {
+      const newMask = {
         ...createEmptyMask(),
         ...mask,
-        id,
         builtin: false,
       };
+      const res = await createMask(newMask);
+      console.log("createMask:", res);
+      // const id = nanoid();
+      // masks[id] = {
+      //   ...createEmptyMask(),
+      //   ...mask,
+      //   id,
+      //   builtin: false,
+      // };
 
       set(() => ({ masks }));
       get().markUpdate();
 
-      return masks[id];
+      return newMask;
     },
     updateMask(id: string, updater: (mask: Mask) => void) {
       const masks = get().masks;
@@ -82,7 +91,7 @@ export const useMaskStore = createPersistStore(
     },
     getAll() {
       const userMasks = Object.values(get().masks).sort(
-        (a, b) => b.createdAt - a.createdAt,
+        (a, b) => (b.createdAt || 0) - (a.createdAt || 0),
       );
       const config = useAppConfig.getState();
       if (config.hideBuiltinMasks) return userMasks;

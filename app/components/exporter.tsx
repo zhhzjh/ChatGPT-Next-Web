@@ -160,15 +160,13 @@ export function MessageExporter() {
   function preview() {
     if (exportConfig.format === "text") {
       return (
-        <MarkdownPreviewer messages={selectedMessages} topic={session.topic} />
+        <MarkdownPreviewer messages={selectedMessages} topic={session.name} />
       );
     } else if (exportConfig.format === "json") {
-      return (
-        <JsonPreviewer messages={selectedMessages} topic={session.topic} />
-      );
+      return <JsonPreviewer messages={selectedMessages} topic={session.name} />;
     } else {
       return (
-        <ImagePreviewer messages={selectedMessages} topic={session.topic} />
+        <ImagePreviewer messages={selectedMessages} topic={session.name} />
       );
     }
   }
@@ -532,7 +530,7 @@ export function ImagePreviewer(props: {
               {Locale.Exporter.Messages}: {props.messages.length}
             </div>
             <div className={styles["chat-info-item"]}>
-              {Locale.Exporter.Topic}: {session.topic}
+              {Locale.Exporter.Topic}: {session.name}
             </div>
             <div className={styles["chat-info-item"]}>
               {Locale.Exporter.Time}:{" "}

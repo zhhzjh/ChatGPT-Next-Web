@@ -1,6 +1,6 @@
 import { Analytics } from "@vercel/analytics/react";
 
-import { Home } from "./components/home";
+import { Home } from "./page/home";
 
 import { getServerSideConfig } from "./config/server";
 

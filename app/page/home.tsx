@@ -13,7 +13,7 @@ import { getCSSVar, useMobileScreen } from "../utils";
 
 import dynamic from "next/dynamic";
 import { Path, SlotID } from "../constant";
-import { ErrorBoundary } from "./error";
+import { ErrorBoundary } from "../components/error";
 
 import { getISOLang, getLang } from "../locales";
 
@@ -23,13 +23,13 @@ import {
   Route,
   useLocation,
 } from "react-router-dom";
-import { SideBar } from "./sidebar";
 import { useAppConfig } from "../store/config";
 import { AuthPage } from "./auth";
 import { getClientConfig } from "../config/client";
 import { api } from "../client/api";
 import { useAccessStore } from "../store";
 import { LoginPage } from "./login";
+import Nav from "../components/nav";
 
 export function Loading(props: { noLogo?: boolean }) {
   return (
@@ -40,7 +40,7 @@ export function Loading(props: { noLogo?: boolean }) {
   );
 }
 
-const Settings = dynamic(async () => (await import("./settings")).Settings, {
+const Notes = dynamic(async () => (await import("./notes")).Notes, {
   loading: () => <Loading noLogo />,
 });
 
@@ -48,13 +48,16 @@ const Chat = dynamic(async () => (await import("./chat")).Chat, {
   loading: () => <Loading noLogo />,
 });
 
-const NewChat = dynamic(async () => (await import("./new-chat")).NewChat, {
+const Settings = dynamic(async () => (await import("./settings")).Settings, {
   loading: () => <Loading noLogo />,
 });
 
-const MaskPage = dynamic(async () => (await import("./mask")).MaskPage, {
-  loading: () => <Loading noLogo />,
-});
+const ChatSettings = dynamic(
+  async () => (await import("./chat-setting")).Chat,
+  {
+    loading: () => <Loading noLogo />,
+  },
+);
 
 export function useSwitchTheme() {
   const config = useAppConfig();
@@ -126,7 +129,6 @@ const loadAsyncGoogleFont = () => {
 function Screen() {
   const config = useAppConfig();
   const location = useLocation();
-  const isHome = location.pathname === Path.Home;
   const isAuth = location.pathname === Path.Auth;
   const isLogin = location.pathname === Path.Login;
   const isMobileScreen = useMobileScreen();
@@ -146,27 +148,25 @@ function Screen() {
         }`
       }
     >
-      {isAuth ? (
-        <>
-          <AuthPage />
-        </>
-      ) : isLogin ? (
+      {isLogin ? (
         <>
           <LoginPage />
         </>
+      ) : isAuth ? (
+        <>
+          <AuthPage />
+        </>
       ) : (
         <>
-          <SideBar className={isHome ? styles["sidebar-show"] : ""} />
-
           <div className={styles["window-content"]} id={SlotID.AppBody}>
             <Routes>
-              <Route path={Path.Home} element={<Chat />} />
-              <Route path={Path.NewChat} element={<NewChat />} />
-              <Route path={Path.Masks} element={<MaskPage />} />
+              <Route path={Path.Home} element={<Notes />} />
               <Route path={Path.Chat} element={<Chat />} />
               <Route path={Path.Settings} element={<Settings />} />
+              <Route path={Path.ChatSetting} element={<ChatSettings />} />
             </Routes>
           </div>
+          <Nav />
         </>
       )}
     </div>

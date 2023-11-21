@@ -16,6 +16,11 @@ import { prettyObject } from "../utils/format";
 import { estimateTokenLength } from "../utils/token";
 import { nanoid } from "nanoid";
 import { createPersistStore } from "../utils/store";
+import {
+  createChatSession,
+  getChatSession,
+  updateChatSession,
+} from "../request/chat-session";
 
 export type ChatMessage = RequestMessage & {
   date: string;
@@ -41,10 +46,14 @@ export interface ChatStat {
   charCount: number;
 }
 
-export interface ChatSession {
+export interface ChatConfig {
   id: string;
-  topic: string;
+  name: string;
+  mask: Mask;
+  noteMask: Mask;
+}
 
+export interface ChatSession extends ChatConfig {
   memoryPrompt: string;
   messages: ChatMessage[];
   stat: ChatStat;
@@ -52,8 +61,6 @@ export interface ChatSession {
   lastSummarizeIndex: number;
   clearContextIndex?: number;
   lastNodeIndex?: number;
-  mask: Mask;
-  noteMask: Mask;
 }
 
 export const DEFAULT_TOPIC = Locale.Store.DefaultTopic;
@@ -64,8 +71,8 @@ export const BOT_HELLO: ChatMessage = createMessage({
 
 function createEmptySession(): ChatSession {
   return {
-    id: nanoid(),
-    topic: DEFAULT_TOPIC,
+    id: "",
+    name: DEFAULT_TOPIC,
     memoryPrompt: "",
     messages: [],
     stat: {
@@ -142,7 +149,9 @@ function fillTemplateWith(input: string, modelConfig: ModelConfig) {
 
 const DEFAULT_CHAT_STATE = {
   sessions: [createEmptySession()],
+  config: {},
   currentSessionIndex: 0,
+  currentId: "",
 };
 
 export const useChatStore = createPersistStore(
@@ -169,6 +178,20 @@ export const useChatStore = createPersistStore(
         });
       },
 
+      async saveCurrentConfig() {
+        const session = get().currentSession();
+        const config: ChatConfig = {
+          id: session.id,
+          name: session.name,
+          mask: session.mask,
+          noteMask: session.noteMask,
+        };
+        const res = await updateChatSession(config);
+        console.log("saveCurrentConfig:", res);
+      },
+
+      async changeSession(id: string, index: number) {},
+
       moveSession(from: number, to: number) {
         set((state) => {
           const { sessions, currentSessionIndex: oldIndex } = state;
@@ -194,23 +217,24 @@ export const useChatStore = createPersistStore(
         });
       },
 
-      newSession(mask?: Mask) {
+      async newSession(mask?: Mask) {
         const session = createEmptySession();
 
-        if (mask) {
-          const config = useAppConfig.getState();
-          const globalModelConfig = config.modelConfig;
+        // if (mask) {
+        //   const config = useAppConfig.getState();
+        //   const globalModelConfig = config.modelConfig;
 
-          session.mask = {
-            ...mask,
-            modelConfig: {
-              ...globalModelConfig,
-              ...mask.modelConfig,
-            },
-          };
-          session.topic = mask.name;
-        }
-
+        //   session.mask = {
+        //     ...mask,
+        //     modelConfig: {
+        //       ...globalModelConfig,
+        //       ...mask.modelConfig,
+        //     },
+        //   };
+        //   session.topic = mask.name;
+        // }
+        const res = await createChatSession(mask);
+        return;
         set((state) => ({
           currentSessionIndex: 0,
           sessions: [session].concat(state.sessions),
@@ -643,7 +667,7 @@ export const useChatStore = createPersistStore(
         const SUMMARIZE_MIN_LEN = 50;
         if (
           config.enableAutoGenerateTitle &&
-          session.topic === DEFAULT_TOPIC &&
+          session.name === DEFAULT_TOPIC &&
           countMessages(messages) >= SUMMARIZE_MIN_LEN
         ) {
           const topicMessages = messages.concat(
@@ -660,7 +684,7 @@ export const useChatStore = createPersistStore(
             onFinish(message) {
               get().updateCurrentSession(
                 (session) =>
-                  (session.topic =
+                  (session.name =
                     message.length > 0 ? trimTopic(message) : DEFAULT_TOPIC),
               );
             },
@@ -765,7 +789,7 @@ export const useChatStore = createPersistStore(
         const oldSessions = state.sessions;
         for (const oldSession of oldSessions) {
           const newSession = createEmptySession();
-          newSession.topic = oldSession.topic;
+          newSession.name = oldSession.name;
           newSession.messages = [...oldSession.messages];
           newSession.mask.modelConfig.sendMemory = true;
           newSession.mask.modelConfig.historyMessageCount = 4;

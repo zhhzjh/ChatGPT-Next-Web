@@ -49,7 +49,7 @@ import { ChatControllerPool } from "../client/controller";
 import { Prompt, usePromptStore } from "../store/prompt";
 import Locale from "../locales";
 
-import { IconButton } from "./button";
+import { IconButton } from "../components/button";
 import styles from "./chat.module.scss";
 
 import {
@@ -59,29 +59,34 @@ import {
   showConfirm,
   showPrompt,
   showToast,
-} from "./ui-lib";
+} from "../components/ui-lib";
 import { useNavigate } from "react-router-dom";
 import {
   AUTO_NOTE_REGEX_LIST,
+  CHAT_LIST,
   CHAT_PAGE_SIZE,
   LAST_INPUT_KEY,
   Path,
   REQUEST_TIMEOUT_MS,
   UNFINISHED_INPUT,
 } from "../constant";
-import { Avatar } from "./emoji";
-import { ContextPrompts, MaskAvatar, MaskConfig } from "./mask";
+import { Avatar } from "../components/emoji";
+import { ContextPrompts, MaskAvatar, MaskConfig } from "../components/mask";
 import { createEmptyMask, useMaskStore } from "../store/mask";
 import { ChatCommandPrefix, useChatCommand, useCommand } from "../command";
 import { prettyObject } from "../utils/format";
-import { ExportMessageModal } from "./exporter";
+import { ExportMessageModal } from "../components/exporter";
 import { getClientConfig } from "../config/client";
-import { useMessageSelector } from "./message-selector";
+import { useMessageSelector } from "../components/message-selector";
 import { AudioRecorder } from "react-audio-voice-recorder";
+import { getChatSession } from "../request/chat-session";
 
-const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
-  loading: () => <LoadingIcon />,
-});
+const Markdown = dynamic(
+  async () => (await import("../components/markdown")).Markdown,
+  {
+    loading: () => <LoadingIcon />,
+  },
+);
 
 type MaskType = "default" | "note";
 
@@ -109,13 +114,9 @@ export function SessionConfigModel(props: {
             key="reset"
             icon={<ResetIcon />}
             bordered
-            text={Locale.Chat.Config.Reset}
+            text={"保存"}
             onClick={async () => {
-              if (await showConfirm(Locale.Memory.ResetConfirm)) {
-                chatStore.updateCurrentSession(
-                  (session) => (session.memoryPrompt = ""),
-                );
-              }
+              chatStore.saveCurrentConfig();
             }}
           />,
           <IconButton
@@ -471,61 +472,6 @@ export function ChatActions(props: {
           icon={<SettingsIcon />}
         />
       )}
-
-      {/* <ChatAction
-        onClick={nextTheme}
-        text={Locale.Chat.InputActions.Theme[theme]}
-        icon={
-          <>
-            {theme === Theme.Auto ? (
-              <AutoIcon />
-            ) : theme === Theme.Light ? (
-              <LightIcon />
-            ) : theme === Theme.Dark ? (
-              <DarkIcon />
-            ) : null}
-          </>
-        }
-      /> */}
-
-      {/* <ChatAction
-        onClick={props.showPromptHints}
-        text={Locale.Chat.InputActions.Prompt}
-        icon={<PromptIcon />}
-      /> */}
-
-      {/* <ChatAction
-        onClick={() => {
-          navigate(Path.Masks);
-        }}
-        text={Locale.Chat.InputActions.Masks}
-        icon={<MaskIcon />}
-      /> */}
-
-      {/* <ChatAction
-        onClick={() => setShowModelSelector(true)}
-        text={currentModel}
-        icon={<RobotIcon />}
-      /> */}
-
-      {/* {showModelSelector && (
-        <Selector
-          defaultSelectedValue={currentModel}
-          items={models.map((m) => ({
-            title: m,
-            value: m,
-          }))}
-          onClose={() => setShowModelSelector(false)}
-          onSelection={(s) => {
-            if (s.length === 0) return;
-            chatStore.updateCurrentSession((session) => {
-              session.mask.modelConfig.model = s[0] as ModelType;
-              session.mask.syncGlobalConfig = false;
-            });
-            showToast(s[0]);
-          }}
-        />
-      )} */}
       <ChatAction
         onClick={() => props.showPromptModal("note")}
         text={Locale.Chat.InputActions.NoteSettings}
@@ -537,14 +483,6 @@ export function ChatActions(props: {
         onClick={() => {
           console.log("clear");
           chatStore.resetSession();
-          // chatStore.updateCurrentSession((session) => {
-          //   if (session.clearContextIndex === session.messages.length) {
-          //     session.clearContextIndex = undefined;
-          //   } else {
-          //     session.clearContextIndex = session.messages.length;
-          //     session.memoryPrompt = ""; // will clear memory
-          //   }
-          // });
         }}
       />
 
@@ -1103,21 +1041,35 @@ function _Chat() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const updateSession = async (id: string, index: number) => {
+    chatStore.selectSession(index);
+    const config = await getChatSession(id);
+    console.log("changeSession:", id, index);
+    if (config) {
+      chatStore.updateCurrentSession((session) => {
+        session.mask = config.mask;
+        session.noteMask = config.noteMask;
+      });
+    }
+  };
+
   return (
     <div className={styles.chat} key={session.id}>
       <div className="window-header" data-tauri-drag-region>
-        {isMobileScreen && (
-          <div className="window-actions">
-            <div className={"window-action-button"}>
-              <IconButton
-                icon={<ReturnIcon />}
-                bordered
-                title={Locale.Chat.Actions.ChatList}
-                onClick={() => navigate(Path.Home)}
-              />
-            </div>
-          </div>
-        )}
+        <div>
+          {CHAT_LIST.map((chat, index) => (
+            <button
+              onClick={(e) => {
+                console.log("reload");
+                // navigate(Path.ChatSetting);
+                updateSession(chat.id, index);
+              }}
+              key={chat.id}
+            >
+              {chat.name}
+            </button>
+          ))}
+        </div>
 
         <div className={`window-header-title ${styles["chat-body-title"]}`}>
           <div

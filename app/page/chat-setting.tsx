@@ -80,6 +80,7 @@ import { getClientConfig } from "../config/client";
 import { useMessageSelector } from "../components/message-selector";
 import { AudioRecorder } from "react-audio-voice-recorder";
 import { getChatSession } from "../request/chat-session";
+import { getMessages } from "../request/message";
 
 const Markdown = dynamic(
   async () => (await import("../components/markdown")).Markdown,
@@ -168,7 +169,7 @@ function PromptToast(props: {
   const session = chatStore.currentSession();
   const isNote = props.showModalType === "note";
   if (isNote && !session.noteMask) session.noteMask = createEmptyMask();
-  const context = isNote ? session.noteMask?.context : session.mask.context;
+  const context = isNote ? session.noteMask?.context : session.mask?.context;
 
   return (
     <div className={styles["prompt-toast"]} key="prompt-toast">
@@ -689,9 +690,9 @@ function _Chat() {
     }
     setIsLoading(!isOnlyNote);
 
-    chatStore
-      .onUserInput(userInput, isOnlyNote)
-      .then(() => setIsLoading(false));
+    chatStore.onUserInput(userInput, isOnlyNote).then(() => {
+      setIsLoading(false);
+    });
     localStorage.setItem(LAST_INPUT_KEY, userInput);
     setUserInput("");
     setPromptHints([]);
@@ -726,7 +727,7 @@ function _Chat() {
       const stopTiming = Date.now() - REQUEST_TIMEOUT_MS;
       session.messages.forEach((m) => {
         // check if should stop all stale messages
-        if (m.isError || new Date(m.date).getTime() < stopTiming) {
+        if (m.isError || new Date(m.createdAt).getTime() < stopTiming) {
           if (m.streaming) {
             m.streaming = false;
           }
@@ -1044,11 +1045,14 @@ function _Chat() {
   const updateSession = async (id: string, index: number) => {
     chatStore.selectSession(index);
     const config = await getChatSession(id);
-    console.log("changeSession:", id, index);
+    const messages = (await getMessages(id)) as ChatMessage[];
+    console.log("changeSession:", id, index, messages);
     if (config) {
       chatStore.updateCurrentSession((session) => {
+        session.id = id;
         session.mask = config.mask;
         session.noteMask = config.noteMask;
+        session.messages = messages || [];
       });
     }
   };
@@ -1162,7 +1166,7 @@ function _Chat() {
           const shouldShowClearContextDivider = i === clearContextIndex - 1;
 
           return (
-            <Fragment key={message.id}>
+            <Fragment key={`${i}-${message.id}`}>
               <div
                 className={
                   isUser ? styles["chat-message-user"] : styles["chat-message"]
@@ -1181,7 +1185,7 @@ function _Chat() {
                               10,
                             );
                             chatStore.updateCurrentSession((session) => {
-                              const m = session.mask.context
+                              const m = session.mask?.context
                                 .concat(session.messages)
                                 .find((m) => m.id === message.id);
                               if (m) {
@@ -1270,7 +1274,7 @@ function _Chat() {
                   <div className={styles["chat-message-action-date"]}>
                     {isContext
                       ? Locale.Chat.IsContext
-                      : message.date.toLocaleString()}
+                      : message.createdAt.toLocaleString()}
                   </div>
                 </div>
               </div>

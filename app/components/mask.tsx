@@ -350,7 +350,7 @@ export function ContextPrompts(props: {
                               createMessage({
                                 role: "user",
                                 content: "",
-                                date: new Date().toLocaleString(),
+                                createdAt: new Date().toLocaleString(),
                               }),
                               i + 1,
                             );
@@ -380,7 +380,7 @@ export function ContextPrompts(props: {
                   createMessage({
                     role: "user",
                     content: "",
-                    date: "",
+                    createdAt: "",
                   }),
                   props.context.length,
                 )

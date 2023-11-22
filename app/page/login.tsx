@@ -12,10 +12,10 @@ import { showToast } from "../components/ui-lib";
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const user = { username: "", password: "" };
+  const user = { email: "", password: "" };
 
   const goLogin = async () => {
-    if (user.username === "") {
+    if (user.email === "") {
       showToast("请输入用户名");
       return;
     }
@@ -45,7 +45,7 @@ export function LoginPage() {
         className={styles["auth-input"]}
         placeholder={"请输入email"}
         onChange={(e) => {
-          user.username = e.currentTarget.value;
+          user.email = e.currentTarget.value;
         }}
       />
       <div className={styles["auth-tips"]}>{"密码"}</div>

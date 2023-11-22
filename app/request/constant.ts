@@ -1,4 +1,4 @@
-// export const BASE_URL = "http://localhost:3001";
+// export const BASE_URL = "http://localhost:3100";
 export const BASE_URL = "https://api.nanshan518.com";
 
 export const API_USER = {
@@ -16,3 +16,10 @@ export const API_CHAT_SESSION = {
   UPDATE: "/session/chat/update",
   GET: "/session/chat/get",
 };
+
+export const API_MESSAGE = {
+  CREATE: "/message/create",
+  GET: "/message/get",
+};
+
+export const EXPIRE_TIME = 30 * 24 * 60 * 60 * 1000;

@@ -16,24 +16,26 @@ import { prettyObject } from "../utils/format";
 import { estimateTokenLength } from "../utils/token";
 import { nanoid } from "nanoid";
 import { createPersistStore } from "../utils/store";
-import {
-  createChatSession,
-  getChatSession,
-  updateChatSession,
-} from "../request/chat-session";
+import { createChatSession, updateChatSession } from "../request/chat-session";
+import { createMessages } from "../request/message";
 
-export type ChatMessage = RequestMessage & {
-  date: string;
-  streaming?: boolean;
+export type BaseMessage = RequestMessage & {
   isError?: boolean;
+  createdAt?: string;
+  chatSessionId?: string;
+};
+
+export type ChatMessage = BaseMessage & {
+  streaming?: boolean;
   id: string;
   model?: ModelType;
+  userId?: string;
 };
 
 export function createMessage(override: Partial<ChatMessage>): ChatMessage {
   return {
-    id: nanoid(),
-    date: new Date().toLocaleString(),
+    id: "",
+    createdAt: new Date().toLocaleString(),
     role: "user",
     content: "",
     ...override,
@@ -187,10 +189,7 @@ export const useChatStore = createPersistStore(
           noteMask: session.noteMask,
         };
         const res = await updateChatSession(config);
-        console.log("saveCurrentConfig:", res);
       },
-
-      async changeSession(id: string, index: number) {},
 
       moveSession(from: number, to: number) {
         set((state) => {
@@ -305,12 +304,17 @@ export const useChatStore = createPersistStore(
         return session;
       },
 
-      onNewMessage(message: ChatMessage) {
-        get().updateCurrentSession((session) => {
-          session.messages = session.messages.concat();
+      onNewMessage(message: ChatMessage, length: number = 2) {
+        get().updateCurrentSession(async (session) => {
+          const messages = session.messages.concat();
+          const result = await createMessages(
+            messages.splice(-length, length) as BaseMessage[],
+          );
+          session.messages = messages.concat(result as ChatMessage[]);
           session.lastUpdate = Date.now();
+          console.log("onNewMessage:", session.messages);
+          // get().updateStat(session.messages[session.messages.length - 1]);
         });
-        get().updateStat(message);
         get().summarizeSession();
       },
 
@@ -344,12 +348,15 @@ export const useChatStore = createPersistStore(
         const userMessage: ChatMessage = createMessage({
           role: "user",
           content: userContent,
+          chatSessionId: session.id,
         });
         const botMessage: ChatMessage = createMessage({
           role: "assistant",
           streaming: true,
           model: modelConfig.model,
+          chatSessionId: session.id,
         });
+        console.log("botMessage:", session, userMessage, botMessage);
         // get recent messages
         const recentMessages = get().getMessagesWithMemory();
         const sendMessages = recentMessages.concat(userMessage);
@@ -431,6 +438,7 @@ export const useChatStore = createPersistStore(
           role: "assistant",
           streaming: true,
           model: modelConfig.model,
+          chatSessionId: session.id,
         });
 
         // 从设置中读取条数
@@ -545,7 +553,7 @@ export const useChatStore = createPersistStore(
             session.memoryPrompt.length > 0
               ? Locale.Store.Prompt.History(session.memoryPrompt)
               : "",
-          date: "",
+          createdAt: "",
         } as ChatMessage;
       },
 
@@ -569,6 +577,7 @@ export const useChatStore = createPersistStore(
                   ...modelConfig,
                   template: DEFAULT_SYSTEM_TEMPLATE,
                 }),
+                chatSessionId: session.id,
               }),
             ]
           : [];
@@ -674,6 +683,7 @@ export const useChatStore = createPersistStore(
             createMessage({
               role: "user",
               content: Locale.Store.Prompt.Topic,
+              chatSessionId: session.id,
             }),
           );
           api.llm.chat({
@@ -730,7 +740,8 @@ export const useChatStore = createPersistStore(
               createMessage({
                 role: "system",
                 content: Locale.Store.Prompt.Summarize,
-                date: "",
+                createdAt: "",
+                chatSessionId: session.id,
               }),
             ),
             config: {

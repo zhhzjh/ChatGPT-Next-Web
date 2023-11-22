@@ -1,42 +1,51 @@
 import { ChatConfig } from "../store";
 import { Mask } from "../store/mask";
 import { API_CHAT_SESSION, BASE_URL } from "./constant";
+import { HttpClient } from "./fetch";
+import { useAsyncLoading } from "./use-async-loading";
 
 export const createChatSession = async (mask?: Mask) => {
-  const param = { maskId: mask?.id };
-  const res = await fetch(BASE_URL + API_CHAT_SESSION.CREATE, {
-    body: JSON.stringify(param),
-    headers: {
-      "Content-Type": "application/json",
-    },
+  const res = await HttpClient.request({
     method: "POST",
+    url: API_CHAT_SESSION.CREATE,
+    data: { maskId: mask?.id },
   });
   console.log("createChatSession:", res);
   return res;
 };
 
 export const updateChatSession = async (config: ChatConfig) => {
-  const res = await fetch(BASE_URL + API_CHAT_SESSION.UPDATE, {
-    body: JSON.stringify(config),
-    headers: {
-      "Content-Type": "application/json",
-    },
+  const res = await HttpClient.request({
     method: "POST",
+    url: API_CHAT_SESSION.UPDATE,
+    data: config,
   });
   console.log("updateChatSession:", res);
   return res;
 };
 
+// export const useUpdateChatSession = () => {
+//   const [updateChatSession, loading] = useAsyncLoading((config: ChatConfig) =>
+//     HttpClient.request({
+//       method: "POST",
+//       url: API_CHAT_SESSION.UPDATE,
+//       data: config,
+//     }),
+//   );
+
+//   return {
+//     updateChatSession,
+//     loading,
+//   };
+// };
+
 export const getChatSession = async (id: string) => {
-  console.log("getChatSession:", id);
-  const res = await fetch(BASE_URL + API_CHAT_SESSION.GET, {
-    body: JSON.stringify({ id }),
-    headers: {
-      "Content-Type": "application/json",
-    },
+  const res = (await HttpClient.request({
+    url: API_CHAT_SESSION.GET,
     method: "POST",
-  });
-  const config = await res.json();
-  console.log("getedChatSession:", config);
-  return config;
+    data: { id },
+  })) as { mask: Mask; noteMask: Mask };
+  console.log("getedChatSession:", res);
+  const { mask, noteMask } = res;
+  return { mask, noteMask };
 };

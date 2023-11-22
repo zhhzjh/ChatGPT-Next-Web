@@ -1,3 +1,4 @@
+import Cookies from "js-cookie";
 import { ChatConfig } from "../store";
 import { Mask } from "../store/mask";
 import { API_CHAT_SESSION, BASE_URL } from "./constant";
@@ -40,11 +41,10 @@ export const updateChatSession = async (config: ChatConfig) => {
 // };
 
 export const getChatSession = async (id: string) => {
-  const res = (await HttpClient.request({
-    url: API_CHAT_SESSION.GET,
-    method: "POST",
-    data: { id },
-  })) as { mask: Mask; noteMask: Mask };
+  const res = (await HttpClient.post(API_CHAT_SESSION.GET, { id })) as {
+    mask: Mask;
+    noteMask: Mask;
+  };
   console.log("getedChatSession:", res);
   const { mask, noteMask } = res;
   return { mask, noteMask };

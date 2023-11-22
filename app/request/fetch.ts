@@ -35,13 +35,11 @@ HttpClient.interceptors.request.use((config: WithCookieAxiosRequestConfig) => {
       "Content-Type": "application/json",
     });
   }
-  console.log("config:", config.cookie, Cookies.get("token"));
   const token = Cookies.get("token");
-  // if (token) {
-  //   if (typeof window === "undefined" && !config.headers?.cookie) {
-  //     headers;
-  //   }
-  // }
+  console.log("config:", headers, headers.common, config.cookie, token);
+  if (token && isBrowser) {
+    headers.Authorization = `Bearer ${token}`;
+  }
 
   return { ...config, headers };
 });

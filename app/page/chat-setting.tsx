@@ -727,7 +727,7 @@ function _Chat() {
       const stopTiming = Date.now() - REQUEST_TIMEOUT_MS;
       session.messages.forEach((m) => {
         // check if should stop all stale messages
-        if (m.isError || new Date(m.createdAt).getTime() < stopTiming) {
+        if (m.isError || new Date(m.createdAt || "").getTime() < stopTiming) {
           if (m.streaming) {
             m.streaming = false;
           }

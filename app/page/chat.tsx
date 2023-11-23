@@ -63,6 +63,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import {
   AUTO_NOTE_REGEX_LIST,
+  CHAT_LIST,
   CHAT_PAGE_SIZE,
   LAST_INPUT_KEY,
   Path,
@@ -78,6 +79,8 @@ import { ExportMessageModal } from "../components/exporter";
 import { getClientConfig } from "../config/client";
 import { useMessageSelector } from "../components/message-selector";
 import { AudioRecorder } from "react-audio-voice-recorder";
+import { getChatSession } from "../request/chat-session";
+import { getMessages } from "../request/message";
 
 const Markdown = dynamic(
   async () => (await import("../components/markdown")).Markdown,
@@ -112,13 +115,9 @@ export function SessionConfigModel(props: {
             key="reset"
             icon={<ResetIcon />}
             bordered
-            text={Locale.Chat.Config.Reset}
+            text={"保存"}
             onClick={async () => {
-              if (await showConfirm(Locale.Memory.ResetConfirm)) {
-                chatStore.updateCurrentSession(
-                  (session) => (session.memoryPrompt = ""),
-                );
-              }
+              chatStore.saveCurrentConfig();
             }}
           />,
           <IconButton
@@ -170,7 +169,7 @@ function PromptToast(props: {
   const session = chatStore.currentSession();
   const isNote = props.showModalType === "note";
   if (isNote && !session.noteMask) session.noteMask = createEmptyMask();
-  const context = isNote ? session.noteMask?.context : session.mask.context;
+  const context = isNote ? session.noteMask?.context : session.mask?.context;
 
   return (
     <div className={styles["prompt-toast"]} key="prompt-toast">
@@ -418,8 +417,7 @@ export function ChatActions(props: {
   scrollToBottom: () => void;
   showPromptHints: () => void;
   hitBottom: boolean;
-  setIsOnlyNote: React.Dispatch<React.SetStateAction<boolean>>;
-  isOnlyNote: boolean;
+  isAdmin?: boolean;
 }) {
   const config = useAppConfig();
   const navigate = useNavigate();
@@ -467,102 +465,28 @@ export function ChatActions(props: {
           icon={<BottomIcon />}
         />
       )}
-      {props.hitBottom && (
+      {props.isAdmin && props.hitBottom && (
         <ChatAction
           onClick={() => props.showPromptModal("default")}
           text={Locale.Chat.InputActions.Settings}
           icon={<SettingsIcon />}
         />
       )}
-
-      {/* <ChatAction
-        onClick={nextTheme}
-        text={Locale.Chat.InputActions.Theme[theme]}
-        icon={
-          <>
-            {theme === Theme.Auto ? (
-              <AutoIcon />
-            ) : theme === Theme.Light ? (
-              <LightIcon />
-            ) : theme === Theme.Dark ? (
-              <DarkIcon />
-            ) : null}
-          </>
-        }
-      /> */}
-
-      {/* <ChatAction
-        onClick={props.showPromptHints}
-        text={Locale.Chat.InputActions.Prompt}
-        icon={<PromptIcon />}
-      /> */}
-
-      {/* <ChatAction
-        onClick={() => {
-          navigate(Path.Masks);
-        }}
-        text={Locale.Chat.InputActions.Masks}
-        icon={<MaskIcon />}
-      /> */}
-
-      {/* <ChatAction
-        onClick={() => setShowModelSelector(true)}
-        text={currentModel}
-        icon={<RobotIcon />}
-      /> */}
-
-      {/* {showModelSelector && (
-        <Selector
-          defaultSelectedValue={currentModel}
-          items={models.map((m) => ({
-            title: m,
-            value: m,
-          }))}
-          onClose={() => setShowModelSelector(false)}
-          onSelection={(s) => {
-            if (s.length === 0) return;
-            chatStore.updateCurrentSession((session) => {
-              session.mask.modelConfig.model = s[0] as ModelType;
-              session.mask.syncGlobalConfig = false;
-            });
-            showToast(s[0]);
-          }}
+      {props.isAdmin && (
+        <ChatAction
+          onClick={() => props.showPromptModal("note")}
+          text={Locale.Chat.InputActions.NoteSettings}
+          icon={<RobotIcon />}
         />
-      )} */}
-      <ChatAction
-        onClick={() => props.showPromptModal("note")}
-        text={Locale.Chat.InputActions.NoteSettings}
-        icon={<RobotIcon />}
-      />
+      )}
       <ChatAction
         text={Locale.Chat.InputActions.Clear}
         icon={<BreakIcon />}
         onClick={() => {
           console.log("clear");
           chatStore.resetSession();
-          // chatStore.updateCurrentSession((session) => {
-          //   if (session.clearContextIndex === session.messages.length) {
-          //     session.clearContextIndex = undefined;
-          //   } else {
-          //     session.clearContextIndex = session.messages.length;
-          //     session.memoryPrompt = ""; // will clear memory
-          //   }
-          // });
         }}
       />
-
-      <ListItem
-        className={styles["chat-only-note"]}
-        title={Locale.Chat.InputActions.OnlyNote}
-      >
-        <input
-          type="checkbox"
-          checked={props.isOnlyNote}
-          onChange={(e) => {
-            props.setIsOnlyNote(e.currentTarget.checked);
-          }}
-        ></input>
-      </ListItem>
     </div>
   );
 }
@@ -629,7 +553,7 @@ export function EditMessageModal(props: { onClose: () => void }) {
   );
 }
 
-function _Chat() {
+function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
   type RenderMessage = ChatMessage & { preview?: boolean };
 
   const chatStore = useChatStore();
@@ -642,7 +566,6 @@ function _Chat() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isOnlyNote, setIsOnlyNote] = useState(false);
   const { submitKey, shouldSubmit } = useSubmitHandler();
   const { scrollRef, setAutoScroll, scrollDomToBottom } = useScrollToBottom();
   const [hitBottom, setHitBottom] = useState(true);
@@ -734,7 +657,6 @@ function _Chat() {
   };
 
   const doSubmit = (userInput: string) => {
-    // console.log("doSubmit:", isOnlyNote);
     if (userInput.trim() === "") return;
     const matchCommand = chatCommands.match(userInput);
     if (checkAutoEndChat(userInput)) {
@@ -754,9 +676,9 @@ function _Chat() {
     }
     setIsLoading(!isOnlyNote);
 
-    chatStore
-      .onUserInput(userInput, isOnlyNote)
-      .then(() => setIsLoading(false));
+    chatStore.onUserInput(userInput, isOnlyNote).then(() => {
+      setIsLoading(false);
+    });
     localStorage.setItem(LAST_INPUT_KEY, userInput);
     setUserInput("");
     setPromptHints([]);
@@ -1106,19 +1028,37 @@ function _Chat() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const updateSession = async (id: string, index: number) => {
+    chatStore.selectSession(index);
+    const config = await getChatSession(id);
+    const messages = (await getMessages(id)) as ChatMessage[];
+    if (config) {
+      chatStore.updateCurrentSession((session) => {
+        session.id = id;
+        session.mask = config.mask;
+        session.noteMask = config.noteMask;
+        session.messages = messages || [];
+      });
+    }
+  };
+
   return (
     <div className={styles.chat} key={session.id}>
       <div className="window-header" data-tauri-drag-region>
-        {isMobileScreen && (
-          <div className="window-actions">
-            <div className={"window-action-button"}>
-              <IconButton
-                icon={<ReturnIcon />}
-                bordered
-                title={Locale.Chat.Actions.ChatList}
-                onClick={() => navigate(Path.Home)}
-              />
-            </div>
+        {isOnlyNote || (
+          <div>
+            {CHAT_LIST.map((chat, index) => (
+              <button
+                onClick={(e) => {
+                  console.log("reload");
+                  // navigate(Path.ChatSetting);
+                  updateSession(chat.id, index);
+                }}
+                key={chat.id}
+              >
+                {chat.name}
+              </button>
+            ))}
           </div>
         )}
 
@@ -1213,7 +1153,7 @@ function _Chat() {
           const shouldShowClearContextDivider = i === clearContextIndex - 1;
 
           return (
-            <Fragment key={message.id}>
+            <Fragment key={`${i}-${message.id}`}>
               <div
                 className={
                   isUser ? styles["chat-message-user"] : styles["chat-message"]
@@ -1232,7 +1172,7 @@ function _Chat() {
                               10,
                             );
                             chatStore.updateCurrentSession((session) => {
-                              const m = session.mask.context
+                              const m = session.mask?.context
                                 .concat(session.messages)
                                 .find((m) => m.id === message.id);
                               if (m) {
@@ -1339,8 +1279,7 @@ function _Chat() {
             setShowPromptModal(true);
             setShowPromptModalType(type || "default");
           }}
-          isOnlyNote={isOnlyNote}
-          setIsOnlyNote={setIsOnlyNote}
+          isAdmin={isAdmin}
           scrollToBottom={scrollToBottom}
           hitBottom={hitBottom}
           showPromptHints={() => {
@@ -1406,8 +1345,16 @@ function _Chat() {
   );
 }
 
-export function Chat() {
+export function Chat({ isAdmin = false, isOnlyNote = false }) {
   const chatStore = useChatStore();
   const sessionIndex = chatStore.currentSessionIndex;
-  return <_Chat key={sessionIndex}></_Chat>;
+  const sessionId = chatStore.currentSession().id;
+  return (
+    <_Chat
+      key={sessionIndex}
+      id={sessionId}
+      isAdmin={isAdmin}
+      isOnlyNote={isOnlyNote}
+    ></_Chat>
+  );
 }

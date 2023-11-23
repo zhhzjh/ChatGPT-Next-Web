@@ -18,6 +18,7 @@ import { nanoid } from "nanoid";
 import { createPersistStore } from "../utils/store";
 import { createChatSession, updateChatSession } from "../request/chat-session";
 import { createMessages } from "../request/message";
+import { createNotes } from "../request/note";
 
 export type BaseMessage = RequestMessage & {
   isError?: boolean;
@@ -41,6 +42,20 @@ export function createMessage(override: Partial<ChatMessage>): ChatMessage {
     ...override,
   };
 }
+
+export type BaseNote = {
+  chatSessionId: string;
+  content: string;
+  role: string;
+  flag: number;
+};
+
+export type Note = BaseNote & {
+  id: string;
+  userId: string;
+  originMessageIds: string;
+  createdAt: string;
+};
 
 export interface ChatStat {
   tokenCount: number;
@@ -428,7 +443,7 @@ export const useChatStore = createPersistStore(
         });
       },
 
-      async onMakeDiary(isOnlyNote = false) {
+      async onMakeDiary() {
         const session = get().currentSession();
         if (!session.noteMask) session.noteMask = createEmptyMask();
         const modelConfig = session.noteMask.modelConfig;
@@ -504,11 +519,26 @@ export const useChatStore = createPersistStore(
               session.messages = session.messages.concat();
             });
           },
-          onFinish(message) {
+          async onFinish(message) {
             botMessage.streaming = false;
             if (message) {
               botMessage.content = message;
               get().onNewMessage(botMessage);
+              const {
+                content,
+                role,
+                chatSessionId = get().currentSession().id,
+              } = botMessage;
+              const result = await createNotes(
+                {
+                  content,
+                  role,
+                  chatSessionId,
+                  flag: 0,
+                },
+                toBeSummarizedMsgs,
+              );
+              console.log("onMakeDiary finish:", result);
             }
             ChatControllerPool.remove(session.id, botMessage.id);
           },

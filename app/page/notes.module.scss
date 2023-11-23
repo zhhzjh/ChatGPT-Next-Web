@@ -1,0 +1,20 @@
+.note-wrap {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin-bottom: 50px;
+}
+
+.note-list {
+  overflow-y: scroll;
+  flex: 1;
+}
+
+.new-note {
+  margin-bottom: 15px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 30px;
+  text-align: center;
+}

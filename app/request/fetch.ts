@@ -4,11 +4,11 @@ import axios, {
   AxiosRequestHeaders,
   AxiosHeaders,
 } from "axios";
-import { Path } from "../constant";
 import { BASE_URL } from "./constant";
-import Router from "next/router";
 import { showToast } from "../components/ui-lib";
 import Cookies from "js-cookie";
+import { toLogin } from "../utils/router";
+import { Path } from "../constant";
 
 type WithCookieAxiosRequestConfig = AxiosRequestConfig & {
   cookie?: string;
@@ -73,6 +73,8 @@ HttpClient.interceptors.response.use(
           if (isBrowser) {
             console.log("catch 401");
             // Router.push(Path.Login);
+            window.location.href = `#${Path.Login}`;
+            // toLogin();
           }
           break;
         case 429:

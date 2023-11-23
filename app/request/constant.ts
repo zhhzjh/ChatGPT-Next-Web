@@ -22,4 +22,10 @@ export const API_MESSAGE = {
   GET: "/message/get",
 };
 
+export const API_NOTE = {
+  CREATE: "/note/create",
+  GET: "/note/get",
+  GETDETAIL: "/note/get/detail",
+};
+
 export const EXPIRE_TIME = 30 * 24 * 60 * 60 * 1000;

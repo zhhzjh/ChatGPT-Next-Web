@@ -26,7 +26,7 @@ export function LoginPage() {
     const loginUser = await login(user);
     if (loginUser && loginUser.id) {
       showToast("login success");
-      setTimeout(() => navigate(Path.Home), 300);
+      navigate(Path.Home);
     }
   };
   useEffect(() => {

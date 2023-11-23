@@ -2,7 +2,7 @@
 
 require("../polyfill");
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 import styles from "./home.module.scss";
 
@@ -22,6 +22,7 @@ import {
   Routes,
   Route,
   useLocation,
+  useNavigate,
 } from "react-router-dom";
 import { useAppConfig } from "../store/config";
 import { AuthPage } from "./auth";
@@ -30,6 +31,7 @@ import { api } from "../client/api";
 import { useAccessStore } from "../store";
 import { LoginPage } from "./login";
 import Nav from "../components/nav";
+import Cookies from "js-cookie";
 
 export function Loading(props: { noLogo?: boolean }) {
   return (
@@ -40,7 +42,7 @@ export function Loading(props: { noLogo?: boolean }) {
   );
 }
 
-const Notes = dynamic(async () => (await import("./notes")).Notes, {
+const Notes = dynamic(async () => (await import("./notes")).NotePage, {
   loading: () => <Loading noLogo />,
 });
 
@@ -51,13 +53,6 @@ const Chat = dynamic(async () => (await import("./chat")).Chat, {
 const Settings = dynamic(async () => (await import("./settings")).Settings, {
   loading: () => <Loading noLogo />,
 });
-
-const ChatSettings = dynamic(
-  async () => (await import("./chat-setting")).Chat,
-  {
-    loading: () => <Loading noLogo />,
-  },
-);
 
 export function useSwitchTheme() {
   const config = useAppConfig();
@@ -135,9 +130,19 @@ function Screen() {
   const shouldTightBorder =
     config.tightBorder && !isMobileScreen && getClientConfig()?.isApp;
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     loadAsyncGoogleFont();
   }, []);
+
+  useEffect(() => {
+    const token = Cookies.get("token");
+    console.log("getToken:", isLogin, location.pathname, token);
+    if (!token && !isLogin) {
+      navigate(Path.Login);
+    }
+  });
 
   return (
     <div
@@ -162,8 +167,15 @@ function Screen() {
             <Routes>
               <Route path={Path.Home} element={<Notes />} />
               <Route path={Path.Chat} element={<Chat />} />
+              <Route
+                path={Path.NewNote}
+                element={<Chat isOnlyNote isAdmin />}
+              />
               <Route path={Path.Settings} element={<Settings />} />
-              <Route path={Path.ChatSetting} element={<ChatSettings />} />
+              <Route
+                path={Path.ChatSetting}
+                element={<Chat isAdmin={true} />}
+              />
             </Routes>
           </div>
           <Nav />

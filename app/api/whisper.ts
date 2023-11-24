@@ -102,10 +102,27 @@ export async function requestWhisper(req: NextRequest) {
   const openai = getOpenai(req);
   const form = await req.formData();
   const audio = form.get("file") as Blob;
-  const filePath = "/var/tmp/audio.webm";
+  let fileName = "audio.wav";
+  switch (audio.type) {
+    case "audio/wav":
+      fileName = "audio.wav";
+      break;
+    case "audio/mp3":
+      fileName = "audio.mp3";
+      break;
+    case "audio/mp4":
+      fileName = "audio.mp4";
+      break;
+    case "audio/webm":
+      fileName = "audio.webm";
+      break;
+    default:
+      throw new Error("Unsupported audio format");
+  }
+  const filePath = `/var/tmp/${fileName}`;
   const audioBuffer = await audio.arrayBuffer();
   fs.writeFileSync(filePath, Buffer.from(new Uint8Array(audioBuffer)));
-  console.log("audio:", audioBuffer);
+  console.log("audio:", audio.type, filePath);
   // console.log("createReadStream:", createReadStream("audio.webm"));
   // const stream = createReadStream((audio as File).name);
   const res = await openai.audio.transcriptions.create({

@@ -1328,7 +1328,6 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
               AudioRecorderPauseResumeClass: styles["chat-input-record-hiden"],
               AudioRecorderDiscardClass: styles["chat-input-record-hiden"],
             }}
-            downloadOnSavePress
             onRecordingComplete={(audioBlob) => {
               submitRecord(audioBlob);
             }}

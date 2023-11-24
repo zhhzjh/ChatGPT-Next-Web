@@ -154,15 +154,17 @@ export const AUTO_NOTE_REGEX_LIST = [
   "就先这样吧",
 ];
 
-// export const CHAT_LIST = [
-//   { id: "539074ba-b6b1-469f-a4f0-266b30bf0858", name: "情感陪伴" },
-//   { id: "c14a7260-c2aa-4a7d-9ebf-ba099fec972f", name: "专业问答" },
-// ]; // online
-
+// online
 export const CHAT_LIST = [
   { id: "539074ba-b6b1-469f-a4f0-266b30bf0858", name: "情感陪伴" },
   { id: "c14a7260-c2aa-4a7d-9ebf-ba099fec972f", name: "专业问答" },
-]; // local
+];
 
-// export const NOTE_SESSION_ID = "00251f88-6dc8-4cf3-8a7c-977c39cca612"; // online
-export const NOTE_SESSION_ID = "539074ba-b6b1-469f-a4f0-266b30bf0888"; // local
+// local
+/* export const CHAT_LIST = [
+  { id: "539074ba-b6b1-469f-a4f0-266b30bf0858", name: "情感陪伴" },
+  { id: "c14a7260-c2aa-4a7d-9ebf-ba099fec972f", name: "专业问答" },
+]; 
+ */
+export const NOTE_SESSION_ID = "00251f88-6dc8-4cf3-8a7c-977c39cca612"; // online
+// export const NOTE_SESSION_ID = "539074ba-b6b1-469f-a4f0-266b30bf0888"; // local

@@ -7,7 +7,6 @@ import axios, {
 import { BASE_URL } from "./constant";
 import { showToast } from "../components/ui-lib";
 import Cookies from "js-cookie";
-import { toLogin } from "../utils/router";
 import { Path } from "../constant";
 
 type WithCookieAxiosRequestConfig = AxiosRequestConfig & {

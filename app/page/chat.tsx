@@ -66,6 +66,7 @@ import {
   CHAT_LIST,
   CHAT_PAGE_SIZE,
   LAST_INPUT_KEY,
+  NOTE_SESSION_ID,
   Path,
   REQUEST_TIMEOUT_MS,
   UNFINISHED_INPUT,
@@ -458,13 +459,13 @@ export function ChatActions(props: {
           icon={<StopIcon />}
         />
       )}
-      {!props.hitBottom && (
-        <ChatAction
-          onClick={props.scrollToBottom}
-          text={Locale.Chat.InputActions.ToBottom}
-          icon={<BottomIcon />}
-        />
-      )}
+      {/* {!props.hitBottom && ( */}
+      <ChatAction
+        onClick={props.scrollToBottom}
+        text={Locale.Chat.InputActions.ToBottom}
+        icon={<BottomIcon />}
+      />
+      {/* )} */}
       {props.isAdmin && props.hitBottom && (
         <ChatAction
           onClick={() => props.showPromptModal("default")}
@@ -483,7 +484,6 @@ export function ChatActions(props: {
         text={Locale.Chat.InputActions.Clear}
         icon={<BreakIcon />}
         onClick={() => {
-          console.log("clear");
           chatStore.resetSession();
         }}
       />
@@ -602,6 +602,16 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
     },
   );
 
+  // 初始化笔记数据
+  useEffect(() => {
+    if (isOnlyNote) {
+      updateSession(NOTE_SESSION_ID);
+    } else {
+      const chat = CHAT_LIST[0];
+      updateSession(chat.id);
+    }
+  }, [isOnlyNote]);
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(measure, [userInput]);
 
@@ -642,7 +652,6 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
     const inputLen = input.length;
     if (inputLen < 3) return false;
     const match = checkEndRegex.exec(input);
-    console.log("checkAutoEndChat:", match);
     return match && inputLen < match[0]?.length * 5;
   };
 
@@ -651,7 +660,7 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
     chatStore.onRecordComplete(audio).then((result) => {
       console.log("result:", result);
       if (result && inputRef?.current) {
-        inputRef.current.value = result;
+        setUserInput(result);
       }
     });
   };
@@ -660,7 +669,6 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
     if (userInput.trim() === "") return;
     const matchCommand = chatCommands.match(userInput);
     if (checkAutoEndChat(userInput)) {
-      console.log("auto end");
       chatStore
         .onUserInput(userInput, true)
         .then(() => chatStore.onMakeDiary());
@@ -861,6 +869,7 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
 
   // preview messages
   const renderMessages = useMemo(() => {
+    // console.log("renderMessages:", session.messages, context);
     return context
       .concat(session.messages as RenderMessage[])
       .concat(
@@ -925,7 +934,6 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
 
     const prevPageMsgIndex = msgRenderIndex - CHAT_PAGE_SIZE;
     const nextPageMsgIndex = msgRenderIndex + CHAT_PAGE_SIZE;
-
     if (isTouchTopEdge && !isTouchBottomEdge) {
       setMsgRenderIndex(prevPageMsgIndex);
     } else if (isTouchBottomEdge) {
@@ -1028,18 +1036,25 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const updateSession = async (id: string, index: number) => {
-    chatStore.selectSession(index);
+  const updateSession = async (id: string) => {
+    chatStore.selectSessionById(id);
     const config = await getChatSession(id);
     const messages = (await getMessages(id)) as ChatMessage[];
     if (config) {
-      chatStore.updateCurrentSession((session) => {
-        session.id = id;
-        session.mask = config.mask;
-        session.noteMask = config.noteMask;
-        session.messages = messages || [];
+      chatStore.updateCurrentSession((curSession) => {
+        curSession.id = id;
+        curSession.mask = config.mask;
+        curSession.noteMask = config.noteMask;
+        curSession.messages = messages || [];
       });
     }
+    setMsgRenderIndex(messages.length - CHAT_PAGE_SIZE);
+    setAutoScroll(true);
+    // console.log(
+    //   "update message:",
+    //   session.messages,
+    //   chatStore.currentSession(),
+    // );
   };
 
   return (
@@ -1047,12 +1062,10 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
       <div className="window-header" data-tauri-drag-region>
         {isOnlyNote || (
           <div>
-            {CHAT_LIST.map((chat, index) => (
+            {CHAT_LIST.map((chat) => (
               <button
                 onClick={(e) => {
-                  console.log("reload");
-                  // navigate(Path.ChatSetting);
-                  updateSession(chat.id, index);
+                  updateSession(chat.id);
                 }}
                 key={chat.id}
               >

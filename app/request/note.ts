@@ -21,6 +21,6 @@ export const getNote = async () => {
     method: "GET",
     url: API_NOTE.GET,
   });
-  console.log("getMessages:", res);
+  console.log("getNote:", res);
   return res;
 };

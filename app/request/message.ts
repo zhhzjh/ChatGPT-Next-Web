@@ -24,6 +24,5 @@ export const getMessages = async (sessionId: string) => {
       sessionId,
     },
   });
-  console.log("getMessages:", res);
   return res;
 };

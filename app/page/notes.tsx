@@ -11,25 +11,7 @@ export const NotePage = () => {
   const navigate = useNavigate();
   useEffect(() => {
     getNote().then((data) => {
-      const notes = [
-        ...(data as Note[]),
-        ...(data as Note[]),
-        ...(data as Note[]),
-        ...(data as Note[]),
-        ...(data as Note[]),
-        ...(data as Note[]),
-        ...(data as Note[]),
-        ...(data as Note[]),
-        ...(data as Note[]),
-        ...(data as Note[]),
-        ...(data as Note[]),
-        ...(data as Note[]),
-        ...(data as Note[]),
-        ...(data as Note[]),
-        ...(data as Note[]),
-        ...(data as Note[]),
-        ...(data as Note[]),
-      ];
+      const notes = data as Note[];
       setNotes(notes);
     });
   }, []);
@@ -46,7 +28,6 @@ export const NotePage = () => {
         {notes.map((note, i) => (
           <NoteItem key={note.id || i} note={note} />
         ))}
-        d
       </div>
     </div>
   );

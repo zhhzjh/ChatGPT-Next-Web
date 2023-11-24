@@ -86,7 +86,7 @@ export const BOT_HELLO: ChatMessage = createMessage({
   content: Locale.Store.BotHello,
 });
 
-function createEmptySession(): ChatSession {
+export function createEmptySession(): ChatSession {
   return {
     id: "",
     name: DEFAULT_TOPIC,
@@ -113,6 +113,7 @@ function getSummarizeModel(currentModel: string) {
 interface ChatStore {
   sessions: ChatSession[];
   currentSessionIndex: number;
+  currentSessionId: string;
   clearSessions: () => void;
   moveSession: (from: number, to: number) => void;
   selectSession: (index: number) => void;
@@ -166,9 +167,9 @@ function fillTemplateWith(input: string, modelConfig: ModelConfig) {
 
 const DEFAULT_CHAT_STATE = {
   sessions: [createEmptySession()],
+  currentSessionId: "",
   config: {},
   currentSessionIndex: 0,
-  currentId: "",
 };
 
 export const useChatStore = createPersistStore(
@@ -186,12 +187,19 @@ export const useChatStore = createPersistStore(
         set(() => ({
           sessions: [createEmptySession()],
           currentSessionIndex: 0,
+          currentSessionId: "",
         }));
       },
 
       selectSession(index: number) {
         set({
           currentSessionIndex: index,
+        });
+      },
+
+      selectSessionById(id: string) {
+        set({
+          currentSessionId: id,
         });
       },
 
@@ -306,16 +314,13 @@ export const useChatStore = createPersistStore(
       },
 
       currentSession() {
-        let index = get().currentSessionIndex;
+        let id = get().currentSessionId;
         const sessions = get().sessions;
 
-        if (index < 0 || index >= sessions.length) {
-          index = Math.min(sessions.length - 1, Math.max(0, index));
-          set(() => ({ currentSessionIndex: index }));
+        let session = sessions.find((session) => session.id === id);
+        if (!session) {
+          return createEmptySession();
         }
-
-        const session = sessions[index];
-
         return session;
       },
 
@@ -327,7 +332,7 @@ export const useChatStore = createPersistStore(
           );
           session.messages = messages.concat(result as ChatMessage[]);
           session.lastUpdate = Date.now();
-          console.log("onNewMessage:", session.messages);
+          // console.log("onNewMessage:", session.messages);
           // get().updateStat(session.messages[session.messages.length - 1]);
         });
         get().summarizeSession();
@@ -538,7 +543,7 @@ export const useChatStore = createPersistStore(
                 },
                 toBeSummarizedMsgs,
               );
-              console.log("onMakeDiary finish:", result);
+              // console.log("onMakeDiary finish:", result);
             }
             ChatControllerPool.remove(session.id, botMessage.id);
           },
@@ -798,6 +803,12 @@ export const useChatStore = createPersistStore(
           session.stat.charCount += message.content.length;
           // TODO: should update chat count and word count
         });
+      },
+
+      updateSession(updater: (sessions: ChatSession[]) => void) {
+        const sessions = get().sessions;
+        updater(sessions);
+        set(() => ({ sessions }));
       },
 
       updateCurrentSession(updater: (session: ChatSession) => void) {

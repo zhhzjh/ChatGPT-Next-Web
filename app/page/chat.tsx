@@ -82,6 +82,10 @@ import { useMessageSelector } from "../components/message-selector";
 import { AudioRecorder } from "react-audio-voice-recorder";
 import { getChatSession } from "../request/chat-session";
 import { getMessages } from "../request/message";
+// import { covertAudio } from "../utils/audio";
+import { toBlobURL } from "@ffmpeg/util";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { covertAudio } from "../utils/audio";
 
 const Markdown = dynamic(
   async () => (await import("../components/markdown")).Markdown,
@@ -655,9 +659,55 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
     return match && inputLen < match[0]?.length * 5;
   };
 
-  const submitRecord = (audio: Blob) => {
-    console.log("submitRecord:", audio);
-    chatStore.onRecordComplete(audio).then((result) => {
+  const ffmpegRef = useRef(new FFmpeg());
+
+  useEffect(() => {
+    loadFFmpeg();
+  }, []);
+  const loadFFmpeg = async () => {
+    setIsLoading(true);
+    const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.4/dist/umd";
+    const ffmpeg = ffmpegRef.current;
+    // toBlobURL is used to bypass CORS issue, urls with the same
+    // domain can be used directly.
+    await ffmpeg.load({
+      coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
+      wasmURL: await toBlobURL(
+        `${baseURL}/ffmpeg-core.wasm`,
+        "application/wasm",
+      ),
+    });
+  };
+
+  const transcode = async (input: Blob): Promise<Blob> => {
+    const ffmpeg = ffmpegRef.current;
+    // u can use 'https://ffmpegwasm.netlify.app/video/video-15s.avi' to download the video to public folder for testing
+    await ffmpeg.writeFile(
+      "input.webm",
+      new Uint8Array(await input.arrayBuffer()),
+    );
+    await ffmpeg.exec(["-i", "input.webm", "output.mp3"]);
+    const data = (await ffmpeg.readFile("output.mp3")) as any;
+    const outputBlob = new Blob([data], {
+      type: `audio/${"mp3"}`,
+    });
+    /* 
+    const url = URL.createObjectURL(outputBlob);
+    const a = document.createElement("a");
+    a.style.display = "none";
+    a.href = url;
+    a.download = `audio.mp3`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove(); */
+    return outputBlob;
+  };
+
+  const submitRecord = async (audio: Blob) => {
+    console.log("before covert");
+    const mp3 = await transcode(audio);
+    console.log("submitRecord:", mp3, audio);
+    chatStore.onRecordComplete(mp3).then((result) => {
       console.log("result:", result);
       if (result && inputRef?.current) {
         setUserInput(result);

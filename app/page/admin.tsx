@@ -6,19 +6,19 @@ export const AdminPage = () => {
     <div
       style={{ display: "flex", flexDirection: "column", marginBottom: "10px" }}
     >
-      <Link key={NOTE_SESSION_ID} to={`${Path.ChatSetting}\${NOTE_SESSION_ID}`}>
+      <Link key={NOTE_SESSION_ID} to={`${Path.ChatSetting}/${NOTE_SESSION_ID}`}>
         生成日记
       </Link>
       <>
         {CHAT_LIST.map((chat) => (
-          <Link key={chat.id} to={`${Path.ChatSetting}\${chat.id}`}>
+          <Link key={chat.id} to={`${Path.ChatSetting}/${chat.id}`}>
             {chat.name}
           </Link>
         ))}
       </>
       <>
         {MY_SESSION_LIST.map((chat) => (
-          <Link key={chat.id} to={`${Path.ChatSetting}\${chat.id}`}>
+          <Link key={chat.id} to={`${Path.ChatSetting}/${chat.id}`}>
             {chat.name}
           </Link>
         ))}

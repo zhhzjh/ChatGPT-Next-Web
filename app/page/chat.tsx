@@ -665,7 +665,7 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
     loadFFmpeg();
   }, []);
   const loadFFmpeg = async () => {
-    setIsLoading(true);
+    // setIsLoading(true);
     const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.4/dist/umd";
     const ffmpeg = ffmpegRef.current;
     // toBlobURL is used to bypass CORS issue, urls with the same
@@ -919,7 +919,7 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
 
   // preview messages
   const renderMessages = useMemo(() => {
-    // console.log("renderMessages:", session.messages, context);
+    console.log("renderMessages:", session.messages, context);
     return context
       .concat(session.messages as RenderMessage[])
       .concat(
@@ -1093,6 +1093,7 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
     if (config) {
       chatStore.updateCurrentSession((curSession) => {
         curSession.id = id;
+        curSession.name = config.name;
         curSession.mask = config.mask;
         curSession.noteMask = config.noteMask;
         curSession.messages = messages || [];
@@ -1109,26 +1110,20 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
 
   return (
     <div className={styles.chat} key={session.id}>
-      <div className="window-header" data-tauri-drag-region>
-        {isOnlyNote || (
+      <div
+        className={`window-header ${styles["chat-header"]}`}
+        data-tauri-drag-region
+      >
+        {/* {isOnlyNote || (
           <div>
-            {CHAT_LIST.map((chat) => (
-              <button
-                onClick={(e) => {
-                  updateSession(chat.id);
-                }}
-                key={chat.id}
-              >
-                {chat.name}
-              </button>
-            ))}
+            
           </div>
-        )}
+        )} */}
 
         <div className={`window-header-title ${styles["chat-body-title"]}`}>
           <div
             className={`window-header-main-title ${styles["chat-body-main-title"]}`}
-            onClickCapture={() => setIsEditingMessage(true)}
+            // onClickCapture={() => setIsEditingMessage(true)}
           >
             {!session.name ? DEFAULT_TOPIC : session.name}
           </div>
@@ -1136,58 +1131,70 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
             {Locale.Chat.SubTitle(session.messages.length)}
           </div>
         </div>
-        <div className="window-actions">
+        <div className={styles["chat-tab-list"]}>
+          {CHAT_LIST.map((chat) => (
+            <IconButton
+              className={styles["chat-tab-button"]}
+              onClick={() => {
+                updateSession(chat.id);
+              }}
+              key={chat.id}
+              text={chat.name}
+            />
+          ))}
+        </div>
+      </div>
+      <div className={`window-actions ${styles["chat-header-action"]}`}>
+        <div className="window-action-button">
+          <IconButton
+            icon={<NoteIcon />}
+            bordered
+            title={Locale.Chat.Actions.Diary}
+            onClick={makeDiary}
+          />
+        </div>
+        {!isMobileScreen && (
           <div className="window-action-button">
             <IconButton
-              icon={<NoteIcon />}
+              icon={<RenameIcon />}
               bordered
-              title={Locale.Chat.Actions.Diary}
-              onClick={makeDiary}
+              onClick={() => setIsEditingMessage(true)}
             />
           </div>
-          {!isMobileScreen && (
-            <div className="window-action-button">
-              <IconButton
-                icon={<RenameIcon />}
-                bordered
-                onClick={() => setIsEditingMessage(true)}
-              />
-            </div>
-          )}
-          {!isMobileScreen && (
-            <div className="window-action-button">
-              <IconButton
-                icon={<ExportIcon />}
-                bordered
-                title={Locale.Chat.Actions.Export}
-                onClick={() => {
-                  setShowExport(true);
-                }}
-              />
-            </div>
-          )}
-          {showMaxIcon && (
-            <div className="window-action-button">
-              <IconButton
-                icon={config.tightBorder ? <MinIcon /> : <MaxIcon />}
-                bordered
-                onClick={() => {
-                  config.update(
-                    (config) => (config.tightBorder = !config.tightBorder),
-                  );
-                }}
-              />
-            </div>
-          )}
-        </div>
+        )}
+        {!isMobileScreen && (
+          <div className="window-action-button">
+            <IconButton
+              icon={<ExportIcon />}
+              bordered
+              title={Locale.Chat.Actions.Export}
+              onClick={() => {
+                setShowExport(true);
+              }}
+            />
+          </div>
+        )}
+        {showMaxIcon && (
+          <div className="window-action-button">
+            <IconButton
+              icon={config.tightBorder ? <MinIcon /> : <MaxIcon />}
+              bordered
+              onClick={() => {
+                config.update(
+                  (config) => (config.tightBorder = !config.tightBorder),
+                );
+              }}
+            />
+          </div>
+        )}
+      </div>
 
-        <PromptToast
+      {/* <PromptToast
           showToast={!hitBottom}
           showModal={showPromptModal}
           showModalType={showPromptModalType}
           setShowModal={setShowPromptModal}
-        />
-      </div>
+        /> */}
 
       <div
         className={styles["chat-body"]}

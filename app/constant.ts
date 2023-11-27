@@ -22,6 +22,8 @@ export enum Path {
   Masks = "/masks",
   Auth = "/auth",
   Login = "/login",
+  NoteDetail = "/note/detail/",
+  NoteId = ":id",
 }
 
 export enum ApiPath {

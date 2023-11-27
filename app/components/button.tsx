@@ -1,11 +1,12 @@
 import * as React from "react";
 
 import styles from "./button.module.scss";
+import { MouseEventHandler } from "react";
 
 export type ButtonType = "primary" | "danger" | null;
 
 export function IconButton(props: {
-  onClick?: () => void;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
   icon?: JSX.Element;
   type?: ButtonType;
   text?: string;

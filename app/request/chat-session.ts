@@ -44,8 +44,9 @@ export const getChatSession = async (id: string) => {
   const res = (await HttpClient.post(API_CHAT_SESSION.GET, { id })) as {
     mask: Mask;
     noteMask: Mask;
+    name: string;
   };
   console.log("getedChatSession:", res);
-  const { mask, noteMask } = res;
-  return { mask, noteMask };
+  const { mask, noteMask, name } = res;
+  return { mask, noteMask, name };
 };

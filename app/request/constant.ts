@@ -1,6 +1,6 @@
-// export const BASE_URL = "http://localhost:3100";
+export const BASE_URL = "http://localhost:3100";
 // export const BASE_URL = "http://10.7.94.182:3100";
-export const BASE_URL = "https://api.nanshan518.com";
+// export const BASE_URL = "https://api.nanshan518.com";
 
 export const API_USER = {
   LOGIN: "/user/login",
@@ -25,8 +25,9 @@ export const API_MESSAGE = {
 
 export const API_NOTE = {
   CREATE: "/note/create",
+  DELETE: "/note/delete",
   GET: "/note/get",
-  GETDETAIL: "/note/get/detail",
+  GET_DETAIL: "/note/get/detail",
 };
 
 export const EXPIRE_TIME = 30 * 24 * 60 * 60 * 1000;

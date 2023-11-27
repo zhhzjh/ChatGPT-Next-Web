@@ -5,6 +5,10 @@
   margin-bottom: 50px;
 }
 
+.note-title {
+  text-align: center;
+}
+
 .note-list {
   overflow-y: scroll;
   flex: 1;
@@ -17,4 +21,23 @@
   border-radius: 5px;
   font-size: 30px;
   text-align: center;
+}
+
+.note-link {
+  text-decoration: none;
+  display: block;
+  position: relative;
+
+  &:hover {
+    .note-delete {
+      display: block;
+    }
+  }
+
+  .note-delete {
+    position: absolute;
+    right: 2px;
+    top: 2px;
+    display: block;
+  }
 }

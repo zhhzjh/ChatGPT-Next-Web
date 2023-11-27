@@ -258,6 +258,37 @@
   }
 }
 
+.chat-header {
+  flex-wrap: wrap;
+
+  .chat-body-title {
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .chat-tab-list {
+    margin-top: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .chat-tab-button {
+    border: 1px solid #aaa;
+    padding: 8px 16px;
+  }
+}
+
+.chat-header-action {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+}
+
 @media only screen and (max-width: 600px) {
   .chat-body-title {
     text-align: center;

@@ -1,4 +1,4 @@
-import { BaseMessage, BaseNote } from "../store";
+import { BaseMessage, BaseNote, Note } from "../store";
 import { API_MESSAGE, API_NOTE } from "./constant";
 import { HttpClient } from "./fetch";
 
@@ -23,4 +23,16 @@ export const getNote = async () => {
   });
   console.log("getNote:", res);
   return res;
+};
+
+export const getNoteDetail = async (id: string): Promise<Note> => {
+  const res = await HttpClient.get(`${API_NOTE.GET_DETAIL}?id=${id}`);
+  console.log("getNoteDetail:", res);
+  return res as unknown as Note;
+};
+
+export const deleteNote = async (id: string): Promise<Note> => {
+  const res = await HttpClient.post(API_NOTE.DELETE, { id });
+  console.log("deleted:", id, res);
+  return res as unknown as Note;
 };

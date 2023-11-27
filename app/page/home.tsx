@@ -32,6 +32,7 @@ import { useAccessStore } from "../store";
 import { LoginPage } from "./login";
 import Nav from "../components/nav";
 import Cookies from "js-cookie";
+import { NoteDetail } from "./note-detail";
 
 export function Loading(props: { noLogo?: boolean }) {
   return (
@@ -138,7 +139,7 @@ function Screen() {
 
   useEffect(() => {
     const token = Cookies.get("token");
-    console.log("getToken:", isLogin, location.pathname, token);
+    // console.log("getToken:", isLogin, location.pathname, token);
     if (!token && !isLogin) {
       navigate(Path.Login);
     }
@@ -175,6 +176,10 @@ function Screen() {
               <Route
                 path={Path.ChatSetting}
                 element={<Chat isAdmin={true} />}
+              />
+              <Route
+                path={`${Path.NoteDetail}${Path.NoteId}`}
+                element={<NoteDetail />}
               />
             </Routes>
           </div>

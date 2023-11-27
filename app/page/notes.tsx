@@ -44,7 +44,7 @@ export const NotePage = () => {
           return note?.id ? (
             <Link
               key={note.id}
-              to={`${Path.NoteDetail}${note.id}`}
+              to={`${Path.NoteDetail}/${note.id}`}
               className={styles["note-link"]}
             >
               <IconButton

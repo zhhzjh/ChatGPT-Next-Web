@@ -14,7 +14,7 @@ export const NoteDetail = () => {
     }
   }, [id]);
   return (
-    <div className={styles["note-wrap"]}>
+    <div className={styles["note-detail-wrap"]}>
       <h1 className={styles["note-title"]}>笔记详情</h1>
       {note?.content && <NoteItem note={note} />}
     </div>

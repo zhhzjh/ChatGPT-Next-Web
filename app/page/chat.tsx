@@ -60,7 +60,7 @@ import {
   showPrompt,
   showToast,
 } from "../components/ui-lib";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   AUTO_NOTE_REGEX_LIST,
   CHAT_LIST,
@@ -557,7 +557,7 @@ export function EditMessageModal(props: { onClose: () => void }) {
   );
 }
 
-function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
+function _Chat({ isAdmin = false, isOnlyNote = false }) {
   type RenderMessage = ChatMessage & { preview?: boolean };
 
   const chatStore = useChatStore();
@@ -606,15 +606,19 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
     },
   );
 
+  const { id: chatId } = useParams();
+
   // 初始化笔记数据
   useEffect(() => {
-    if (isOnlyNote) {
+    if (chatId) {
+      updateSession(chatId);
+    } else if (isOnlyNote) {
       updateSession(NOTE_SESSION_ID);
     } else {
       const chat = CHAT_LIST[0];
       updateSession(chat.id);
     }
-  }, [isOnlyNote]);
+  }, [isOnlyNote, chatId]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(measure, [userInput]);
@@ -1132,20 +1136,31 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
           </div> */}
           {/* </div> */}
           {/* <div className={styles["chat-tab-list"]}> */}
-          {CHAT_LIST.map((chat) => (
-            <IconButton
-              className={`${styles["chat-tab-button"]}${
-                chat.id === chatStore.currentSessionId
-                  ? ` ${styles["selected"]}`
-                  : ""
-              }`}
-              onClick={() => {
-                updateSession(chat.id);
-              }}
-              key={chat.id}
-              text={chat.name}
-            />
-          ))}
+          {chatId ? (
+            <div
+              className={`window-header-main-title ${styles["chat-body-main-title"]}`}
+              // onClickCapture={() => setIsEditingMessage(true)}
+            >
+              {!session.name ? DEFAULT_TOPIC : session.name}
+            </div>
+          ) : (
+            <>
+              {CHAT_LIST.map((chat) => (
+                <IconButton
+                  className={`${styles["chat-tab-button"]}${
+                    chat.id === chatStore.currentSessionId
+                      ? ` ${styles["selected"]}`
+                      : ""
+                  }`}
+                  onClick={() => {
+                    updateSession(chat.id);
+                  }}
+                  key={chat.id}
+                  text={chat.name}
+                />
+              ))}
+            </>
+          )}
           <div className="window-action-button">
             <IconButton
               icon={<NoteIcon />}
@@ -1420,13 +1435,7 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
 export function Chat({ isAdmin = false, isOnlyNote = false }) {
   const chatStore = useChatStore();
   const sessionIndex = chatStore.currentSessionIndex;
-  const sessionId = chatStore.currentSession().id;
   return (
-    <_Chat
-      key={sessionIndex}
-      id={sessionId}
-      isAdmin={isAdmin}
-      isOnlyNote={isOnlyNote}
-    ></_Chat>
+    <_Chat key={sessionIndex} isAdmin={isAdmin} isOnlyNote={isOnlyNote}></_Chat>
   );
 }

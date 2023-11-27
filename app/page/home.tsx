@@ -33,6 +33,7 @@ import { LoginPage } from "./login";
 import Nav from "../components/nav";
 import Cookies from "js-cookie";
 import { NoteDetail } from "./note-detail";
+import { AdminPage } from "./admin";
 
 export function Loading(props: { noLogo?: boolean }) {
   return (
@@ -168,19 +169,15 @@ function Screen() {
             <Routes>
               <Route path={Path.Home} element={<Notes />} />
               <Route path={Path.Chat} element={<Chat />} />
-              <Route
-                path={Path.NewNote}
-                element={<Chat isOnlyNote isAdmin />}
-              />
+              <Route path={`${Path.Chat}/:id`} element={<Chat />} />
+              <Route path={Path.NewNote} element={<Chat isOnlyNote />} />
               <Route path={Path.Settings} element={<Settings />} />
               <Route
-                path={Path.ChatSetting}
-                element={<Chat isAdmin={true} />}
+                path={`${Path.ChatSetting}/:id`}
+                element={<Chat isAdmin />}
               />
-              <Route
-                path={`${Path.NoteDetail}${Path.NoteId}`}
-                element={<NoteDetail />}
-              />
+              <Route path={`${Path.NoteDetail}/:id`} element={<NoteDetail />} />
+              <Route path={Path.Admin} element={<AdminPage />} />
             </Routes>
           </div>
           <Nav />

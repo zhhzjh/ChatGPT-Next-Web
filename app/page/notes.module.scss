@@ -5,6 +5,13 @@
   margin-bottom: 50px;
 }
 
+.note-detail-wrap {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 50px;
+  overflow-y: auto;
+}
+
 .note-title {
   text-align: center;
 }

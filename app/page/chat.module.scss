@@ -265,8 +265,7 @@
     width: 100%;
     max-width: 100%;
     display: flex;
-    justify-content: center;
-    flex-direction: column;
+    justify-content: space-around;
     align-items: center;
   }
 
@@ -280,6 +279,12 @@
   .chat-tab-button {
     border: 1px solid #aaa;
     padding: 8px 16px;
+
+    &.selected {
+      border-color: #ddd;
+      background-color: #999;
+      color: #222;
+    }
   }
 }
 

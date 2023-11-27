@@ -1121,7 +1121,7 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
         )} */}
 
         <div className={`window-header-title ${styles["chat-body-title"]}`}>
-          <div
+          {/* <div
             className={`window-header-main-title ${styles["chat-body-main-title"]}`}
             // onClickCapture={() => setIsEditingMessage(true)}
           >
@@ -1129,12 +1129,16 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
           </div>
           <div className="window-header-sub-title">
             {Locale.Chat.SubTitle(session.messages.length)}
-          </div>
-        </div>
-        <div className={styles["chat-tab-list"]}>
+          </div> */}
+          {/* </div> */}
+          {/* <div className={styles["chat-tab-list"]}> */}
           {CHAT_LIST.map((chat) => (
             <IconButton
-              className={styles["chat-tab-button"]}
+              className={`${styles["chat-tab-button"]}${
+                chat.id === chatStore.currentSessionId
+                  ? ` ${styles["selected"]}`
+                  : ""
+              }`}
               onClick={() => {
                 updateSession(chat.id);
               }}
@@ -1142,17 +1146,16 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
               text={chat.name}
             />
           ))}
+          <div className="window-action-button">
+            <IconButton
+              icon={<NoteIcon />}
+              bordered
+              title={Locale.Chat.Actions.Diary}
+              onClick={makeDiary}
+            />
+          </div>
         </div>
-      </div>
-      <div className={`window-actions ${styles["chat-header-action"]}`}>
-        <div className="window-action-button">
-          <IconButton
-            icon={<NoteIcon />}
-            bordered
-            title={Locale.Chat.Actions.Diary}
-            onClick={makeDiary}
-          />
-        </div>
+        {/* <div className={`window-actions ${styles["chat-header-action"]}`}></div> */}
         {!isMobileScreen && (
           <div className="window-action-button">
             <IconButton
@@ -1189,12 +1192,12 @@ function _Chat({ id = "", isAdmin = false, isOnlyNote = false }) {
         )}
       </div>
 
-      {/* <PromptToast
-          showToast={!hitBottom}
-          showModal={showPromptModal}
-          showModalType={showPromptModalType}
-          setShowModal={setShowPromptModal}
-        /> */}
+      <PromptToast
+        showToast={!hitBottom}
+        showModal={showPromptModal}
+        showModalType={showPromptModalType}
+        setShowModal={setShowPromptModal}
+      />
 
       <div
         className={styles["chat-body"]}

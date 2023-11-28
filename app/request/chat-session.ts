@@ -45,8 +45,8 @@ export const getChatSession = async (id: string) => {
     mask: Mask;
     noteMask: Mask;
     name: string;
+    type: number;
   };
-  console.log("getedChatSession:", res);
-  const { mask, noteMask, name } = res;
-  return { mask, noteMask, name };
+  const { mask, noteMask, name, type } = res;
+  return { mask, noteMask, name, type };
 };

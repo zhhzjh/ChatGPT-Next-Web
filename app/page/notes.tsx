@@ -4,7 +4,7 @@ import { Note } from "../store";
 import { NoteItem } from "../components/note";
 import styles from "./notes.module.scss";
 import { Link, useNavigate } from "react-router-dom";
-import { Path } from "../constant";
+import { NOTE_SESSION_ID, Path } from "../constant";
 import CloseIcon from "../icons/close.svg";
 import { IconButton } from "../components/button";
 
@@ -35,7 +35,7 @@ export const NotePage = () => {
       <h1 className={styles["note-title"]}>我的笔记</h1>
       <div
         className={styles["new-note"]}
-        onClick={() => navigate(Path.NewNote)}
+        onClick={() => navigate(`${Path.Chat}/${NOTE_SESSION_ID}`)}
       >
         +
       </div>

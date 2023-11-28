@@ -165,8 +165,15 @@ function fillTemplateWith(input: string, modelConfig: ModelConfig) {
   return output;
 }
 
-const DEFAULT_CHAT_STATE = {
-  sessions: [createEmptySession()],
+type CHAT_STATE_TYPE = {
+  sessions: ChatSession[];
+  currentSessionId: string;
+  config: {};
+  currentSessionIndex: number;
+};
+
+const DEFAULT_CHAT_STATE: CHAT_STATE_TYPE = {
+  sessions: [],
   currentSessionId: "",
   config: {},
   currentSessionIndex: 0,
@@ -185,7 +192,7 @@ export const useChatStore = createPersistStore(
     const methods = {
       clearSessions() {
         set(() => ({
-          sessions: [createEmptySession()],
+          sessions: [],
           currentSessionIndex: 0,
           currentSessionId: "",
         }));
@@ -198,9 +205,19 @@ export const useChatStore = createPersistStore(
       },
 
       selectSessionById(id: string) {
-        set({
+        // let sessions = get().sessions;
+        // let session: ChatSession | undefined = sessions.find(
+        //   (session) => session.id === id,
+        // );
+        // if (!session) {
+        //   session = createEmptySession();
+        //   session.id = id;
+        //   sessions = [session].concat(sessions);
+        // }
+        set(() => ({
           currentSessionId: id,
-        });
+          // sessions: sessions,
+        }));
       },
 
       async saveCurrentConfig() {
@@ -316,12 +333,11 @@ export const useChatStore = createPersistStore(
       currentSession() {
         let id = get().currentSessionId;
         const sessions = get().sessions;
-
-        let session = sessions.find((session) => session.id === id);
-        if (!session) {
-          return createEmptySession();
-        }
-        return session;
+        console.log("getSessions:", sessions);
+        let session: ChatSession | undefined = sessions.find(
+          (session) => session.id === id,
+        );
+        return session || createEmptySession();
       },
 
       onNewMessage(message: ChatMessage, length: number = 2) {
@@ -798,23 +814,15 @@ export const useChatStore = createPersistStore(
         }
       },
 
-      updateStat(message: ChatMessage) {
-        get().updateCurrentSession((session) => {
-          session.stat.charCount += message.content.length;
-          // TODO: should update chat count and word count
-        });
-      },
-
-      updateSession(updater: (sessions: ChatSession[]) => void) {
-        const sessions = get().sessions;
-        updater(sessions);
-        set(() => ({ sessions }));
-      },
-
       updateCurrentSession(updater: (session: ChatSession) => void) {
-        const sessions = get().sessions;
-        const index = get().currentSessionIndex;
-        updater(sessions[index]);
+        let sessions = get().sessions;
+        const id = get().currentSessionId;
+        let session: ChatSession = get().currentSession();
+        console.log("updateCurrentSession:", sessions);
+        if (!session?.id) {
+          sessions.unshift(session);
+        }
+        updater(session);
         set(() => ({ sessions }));
       },
 
@@ -831,9 +839,7 @@ export const useChatStore = createPersistStore(
     version: 3.1,
     migrate(persistedState, version) {
       const state = persistedState as any;
-      const newState = JSON.parse(
-        JSON.stringify(state),
-      ) as typeof DEFAULT_CHAT_STATE;
+      const newState = JSON.parse(JSON.stringify(state)) as CHAT_STATE_TYPE;
 
       if (version < 2) {
         newState.sessions = [];

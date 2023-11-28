@@ -81,7 +81,7 @@ import { getClientConfig } from "../config/client";
 import { useMessageSelector } from "../components/message-selector";
 import { AudioRecorder } from "react-audio-voice-recorder";
 import { getChatSession } from "../request/chat-session";
-import { getMessages } from "../request/message";
+import { deleteMessage, getMessages, updateMessage } from "../request/message";
 // import { covertAudio } from "../utils/audio";
 import { toBlobURL } from "@ffmpeg/util";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
@@ -178,7 +178,7 @@ function PromptToast(props: {
 
   return (
     <div className={styles["prompt-toast"]} key="prompt-toast">
-      {props.showToast && (
+      {/* props.showToast && (
         <div
           className={styles["prompt-toast-inner"] + " clickable"}
           role="button"
@@ -189,7 +189,7 @@ function PromptToast(props: {
             {Locale.Context.Toast(context.length)}
           </span>
         </div>
-      )}
+      ) */}
       {props.showModal && (
         <SessionConfigModel
           showModalType={props.showModalType}
@@ -557,7 +557,7 @@ export function EditMessageModal(props: { onClose: () => void }) {
   );
 }
 
-function _Chat({ isAdmin = false, isOnlyNote = false }) {
+function _Chat({ isAdmin = false }) {
   type RenderMessage = ChatMessage & { preview?: boolean };
 
   const chatStore = useChatStore();
@@ -566,6 +566,7 @@ function _Chat({ isAdmin = false, isOnlyNote = false }) {
   const fontSize = config.fontSize;
 
   const [showExport, setShowExport] = useState(false);
+  const [onlyNote, setOnlyNote] = useState(false);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [userInput, setUserInput] = useState("");
@@ -612,13 +613,11 @@ function _Chat({ isAdmin = false, isOnlyNote = false }) {
   useEffect(() => {
     if (chatId) {
       updateSession(chatId);
-    } else if (isOnlyNote) {
-      updateSession(NOTE_SESSION_ID);
     } else {
       const chat = CHAT_LIST[0];
       updateSession(chat.id);
     }
-  }, [isOnlyNote, chatId]);
+  }, [chatId]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(measure, [userInput]);
@@ -736,9 +735,9 @@ function _Chat({ isAdmin = false, isOnlyNote = false }) {
       matchCommand.invoke();
       return;
     }
-    setIsLoading(!isOnlyNote);
+    setIsLoading(!onlyNote);
 
-    chatStore.onUserInput(userInput, isOnlyNote).then(() => {
+    chatStore.onUserInput(userInput, onlyNote).then(() => {
       setIsLoading(false);
     });
     localStorage.setItem(LAST_INPUT_KEY, userInput);
@@ -770,7 +769,7 @@ function _Chat({ isAdmin = false, isOnlyNote = false }) {
     ChatControllerPool.stop(session.id, messageId);
   };
 
-  useEffect(() => {
+  /*   useEffect(() => {
     chatStore.updateCurrentSession((session) => {
       const stopTiming = Date.now() - REQUEST_TIMEOUT_MS;
       session.messages.forEach((m) => {
@@ -797,7 +796,7 @@ function _Chat({ isAdmin = false, isOnlyNote = false }) {
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, []); */
 
   // check if should send message
   const onInputKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -827,18 +826,30 @@ function _Chat({ isAdmin = false, isOnlyNote = false }) {
     }
   };
 
-  const deleteMessage = (msgId?: string) => {
-    chatStore.updateCurrentSession(
-      (session) =>
-        (session.messages = session.messages.filter((m) => m.id !== msgId)),
-    );
+  const delMessage = (msgId: string) => {
+    deleteMessage(msgId).then((result) => {
+      if (!result) return;
+      chatStore.updateCurrentSession(
+        (session) =>
+          (session.messages = session.messages.filter((m) => m.id !== msgId)),
+      );
+    });
   };
 
-  const onDelete = (msgId: string) => {
-    deleteMessage(msgId);
+  const updateMsg = (message: ChatMessage, content: string) => {
+    updateMessage({ ...message, content }).then((result) => {
+      chatStore.updateCurrentSession((session) => {
+        const m = session.mask?.context
+          .concat(session.messages)
+          .find((m) => m.id === message.id);
+        if (m) {
+          m.content = content;
+        }
+      });
+    });
   };
 
-  const onResend = (message: ChatMessage) => {
+  /*   const onResend = (message: ChatMessage) => {
     // when it is resending a message
     // 1. for a user's message, find the next bot response
     // 2. for a bot's message, find the last user's input
@@ -883,14 +894,14 @@ function _Chat({ isAdmin = false, isOnlyNote = false }) {
     }
 
     // delete the original messages
-    deleteMessage(userMessage.id);
-    deleteMessage(botMessage?.id);
+    delMessage(userMessage.id);
+    delMessage(botMessage?.id);
 
     // resend the message
     setIsLoading(true);
     chatStore.onUserInput(userMessage.content).then(() => setIsLoading(false));
     inputRef.current?.focus();
-  };
+  }; */
 
   const onPinMessage = (message: ChatMessage) => {
     chatStore.updateCurrentSession((session) =>
@@ -1092,15 +1103,22 @@ function _Chat({ isAdmin = false, isOnlyNote = false }) {
 
   const updateSession = async (id: string) => {
     chatStore.selectSessionById(id);
+    const oldSession = chatStore.currentSession();
+    let messages = oldSession?.messages || [];
+    if (!oldSession?.id) {
+      messages = (await getMessages(id)) as ChatMessage[];
+    }
     const config = await getChatSession(id);
-    const messages = (await getMessages(id)) as ChatMessage[];
+    console.log("currentSession:", config, oldSession, messages);
     if (config) {
-      chatStore.updateCurrentSession((curSession) => {
-        curSession.id = id;
+      setOnlyNote(config.type === 1);
+      chatStore.updateCurrentSession(async (curSession) => {
+        console.log("updateCurrentSession:", curSession);
         curSession.name = config.name;
         curSession.mask = config.mask;
         curSession.noteMask = config.noteMask;
-        curSession.messages = messages || [];
+        curSession.id = id;
+        curSession.messages = messages.concat();
       });
     }
     setMsgRenderIndex(messages.length - CHAT_PAGE_SIZE);
@@ -1112,18 +1130,14 @@ function _Chat({ isAdmin = false, isOnlyNote = false }) {
     // );
   };
 
+  // console.log("render:");
+
   return (
     <div className={styles.chat} key={session.id}>
       <div
         className={`window-header ${styles["chat-header"]}`}
         data-tauri-drag-region
       >
-        {/* {isOnlyNote || (
-          <div>
-            
-          </div>
-        )} */}
-
         <div className={`window-header-title ${styles["chat-body-title"]}`}>
           {/* <div
             className={`window-header-main-title ${styles["chat-body-main-title"]}`}
@@ -1259,14 +1273,7 @@ function _Chat({ isAdmin = false, isOnlyNote = false }) {
                               message.content,
                               10,
                             );
-                            chatStore.updateCurrentSession((session) => {
-                              const m = session.mask?.context
-                                .concat(session.messages)
-                                .find((m) => m.id === message.id);
-                              if (m) {
-                                m.content = newMessage;
-                              }
-                            });
+                            updateMsg(message, newMessage);
                           }}
                         ></IconButton>
                       </div>
@@ -1294,23 +1301,23 @@ function _Chat({ isAdmin = false, isOnlyNote = false }) {
                             />
                           ) : (
                             <>
-                              <ChatAction
+                              {/* <ChatAction
                                 text={Locale.Chat.Actions.Retry}
                                 icon={<ResetIcon />}
                                 onClick={() => onResend(message)}
-                              />
+                              /> */}
 
                               <ChatAction
                                 text={Locale.Chat.Actions.Delete}
                                 icon={<DeleteIcon />}
-                                onClick={() => onDelete(message.id ?? i)}
+                                onClick={() => delMessage(message.id ?? i)}
                               />
 
-                              <ChatAction
+                              {/* <ChatAction
                                 text={Locale.Chat.Actions.Pin}
                                 icon={<PinIcon />}
                                 onClick={() => onPinMessage(message)}
-                              />
+                              /> */}
                               <ChatAction
                                 text={Locale.Chat.Actions.Copy}
                                 icon={<CopyIcon />}
@@ -1432,10 +1439,8 @@ function _Chat({ isAdmin = false, isOnlyNote = false }) {
   );
 }
 
-export function Chat({ isAdmin = false, isOnlyNote = false }) {
+export function Chat({ isAdmin = false }) {
   const chatStore = useChatStore();
   const sessionIndex = chatStore.currentSessionIndex;
-  return (
-    <_Chat key={sessionIndex} isAdmin={isAdmin} isOnlyNote={isOnlyNote}></_Chat>
-  );
+  return <_Chat key={sessionIndex} isAdmin={isAdmin}></_Chat>;
 }

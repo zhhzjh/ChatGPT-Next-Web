@@ -1,4 +1,4 @@
-import { BaseMessage } from "../store";
+import { BaseMessage, ChatMessage } from "../store";
 import { API_MESSAGE } from "./constant";
 import { HttpClient } from "./fetch";
 
@@ -24,5 +24,15 @@ export const getMessages = async (sessionId: string) => {
       sessionId,
     },
   });
+  return res;
+};
+
+export const updateMessage = async (message: ChatMessage) => {
+  const res = await HttpClient.post(API_MESSAGE.UPDATE, { message });
+  return res;
+};
+
+export const deleteMessage = async (id: string) => {
+  const res = await HttpClient.post(API_MESSAGE.DELETE, { id });
   return res;
 };

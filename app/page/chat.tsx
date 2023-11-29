@@ -102,6 +102,7 @@ export function SessionConfigModel(props: {
   showModalType: MaskType;
   onClose: () => void;
 }) {
+  console.log("SessionConfigModel");
   const chatStore = useChatStore();
   const session = chatStore.currentSession();
   const maskStore = useMaskStore();
@@ -171,6 +172,7 @@ function PromptToast(props: {
   setShowModal: (_: boolean) => void;
 }) {
   const chatStore = useChatStore();
+  console.log("PromptToast");
   const session = chatStore.currentSession();
   const isNote = props.showModalType === "note";
   if (isNote && !session.noteMask) session.noteMask = createEmptyMask();
@@ -393,6 +395,7 @@ function useScrollToBottom() {
   const [autoScroll, setAutoScroll] = useState(true);
 
   function scrollDomToBottom() {
+    console.log("scrollDomToBottom");
     const dom = scrollRef.current;
     if (dom) {
       requestAnimationFrame(() => {
@@ -441,7 +444,7 @@ export function ChatActions(props: {
   // stop all responses
   const couldStop = ChatControllerPool.hasPending();
   const stopAll = () => ChatControllerPool.stopAll();
-
+  console.log("ChatActions");
   // switch model
   const currentModel = chatStore.currentSession().mask.modelConfig.model;
   const models = useMemo(
@@ -497,6 +500,7 @@ export function ChatActions(props: {
 
 export function EditMessageModal(props: { onClose: () => void }) {
   const chatStore = useChatStore();
+  console.log("EditMessageModal");
   const session = chatStore.currentSession();
   const [messages, setMessages] = useState(session.messages.slice());
 
@@ -561,10 +565,10 @@ function _Chat({ isAdmin = false }) {
   type RenderMessage = ChatMessage & { preview?: boolean };
 
   const chatStore = useChatStore();
+  console.log("_Chat");
   const session = chatStore.currentSession();
   const config = useAppConfig();
   const fontSize = config.fontSize;
-
   const [showExport, setShowExport] = useState(false);
   const [onlyNote, setOnlyNote] = useState(false);
 
@@ -975,8 +979,10 @@ function _Chat({ isAdmin = false }) {
     Math.max(0, renderMessages.length - CHAT_PAGE_SIZE),
   );
   function setMsgRenderIndex(newIndex: number) {
+    console.log("setMsgRenderIndex:", newIndex);
     newIndex = Math.min(renderMessages.length - CHAT_PAGE_SIZE, newIndex);
     newIndex = Math.max(0, newIndex);
+    console.log("setedMsgRenderIndex:", newIndex);
     _setMsgRenderIndex(newIndex);
   }
 
@@ -999,6 +1005,14 @@ function _Chat({ isAdmin = false }) {
 
     const prevPageMsgIndex = msgRenderIndex - CHAT_PAGE_SIZE;
     const nextPageMsgIndex = msgRenderIndex + CHAT_PAGE_SIZE;
+    console.log(
+      "onChatBodyScroll:",
+      e.scrollTop,
+      e.clientHeight,
+      e.scrollHeight,
+      isTouchTopEdge,
+      isTouchBottomEdge,
+    );
     if (isTouchTopEdge && !isTouchBottomEdge) {
       setMsgRenderIndex(prevPageMsgIndex);
     } else if (isTouchBottomEdge) {
@@ -1010,6 +1024,7 @@ function _Chat({ isAdmin = false }) {
   };
 
   function scrollToBottom() {
+    console.log("scrollToBottom");
     setMsgRenderIndex(renderMessages.length - CHAT_PAGE_SIZE);
     scrollDomToBottom();
   }
@@ -1130,7 +1145,7 @@ function _Chat({ isAdmin = false }) {
     // );
   };
 
-  // console.log("render:");
+  console.log("render:", messages);
 
   return (
     <div className={styles.chat} key={session.id}>

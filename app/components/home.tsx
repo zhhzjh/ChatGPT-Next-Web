@@ -29,7 +29,6 @@ import { AuthPage } from "./auth";
 import { getClientConfig } from "../config/client";
 import { api } from "../client/api";
 import { useAccessStore } from "../store";
-import { LoginPage } from "./login";
 
 export function Loading(props: { noLogo?: boolean }) {
   return (

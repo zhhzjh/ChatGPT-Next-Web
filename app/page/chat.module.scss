@@ -532,7 +532,7 @@
   background-color: var(--white);
   color: var(--black);
   font-family: inherit;
-  padding: 10px 90px 10px 60px;
+  padding: 10px 62px 10px 45px;
   resize: none;
   outline: none;
   box-sizing: border-box;
@@ -549,15 +549,22 @@
 
   position: absolute;
   right: 30px;
-  bottom: 32px;
+  bottom: 45px;
 }
 
 .chat-input-record {
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 50% !important;
   position: absolute;
   left: 30px;
-  bottom: 32px;
+  bottom: 40px;
   display: flex;
   justify-content: center;
+
+  img {
+    padding: 7px;
+  }
 
   .chat-input-record-hiden {
     display: none;
@@ -582,5 +589,8 @@
 
   .chat-input-send {
     bottom: 30px;
+    right: 24px;
+    padding: 16px 6px;
+    border-radius: 4px;
   }
 }

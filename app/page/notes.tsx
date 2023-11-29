@@ -32,7 +32,7 @@ export const NotePage = () => {
 
   return (
     <div className={styles["note-wrap"]}>
-      <h1 className={styles["note-title"]}>我的笔记</h1>
+      <h1 className={styles["note-title"]}>如溪</h1>
       <div
         className={styles["new-note"]}
         onClick={() => navigate(`${Path.Chat}/${NOTE_SESSION_ID}`)}

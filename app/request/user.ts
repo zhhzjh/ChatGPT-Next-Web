@@ -2,7 +2,14 @@ import { showToast } from "../components/ui-lib";
 import Cookies from "js-cookie";
 import { API_USER, BASE_URL, EXPIRE_TIME } from "./constant";
 import { HttpClient } from "./fetch";
-export const login = async (user: { email: string; password: string }) => {
+import { IUser } from "../store/user";
+
+/**
+ * 登录接口
+ * @param user { name: string; password: string }
+ * @returns
+ */
+export const login = async (user: { name: string; password: string }) => {
   const result = (await HttpClient.request({
     method: "POST",
     url: API_USER.LOGIN,
@@ -14,11 +21,24 @@ export const login = async (user: { email: string; password: string }) => {
     });
   }
   return result;
-  // if (result.status === 200) {
-  //   const user = await result.json();
-  //   return user;
-  // } else {
-  //   showToast(result.statusText || "login error");
-  //   return null;
-  // }
+};
+
+/**
+ * 获取用户信息
+ * @param user { name: string; password: string }
+ * @returns
+ */
+export const getUserDetail = async (): Promise<IUser> => {
+  const result = (await HttpClient.get(API_USER.DETAIL)) as any;
+  return result as IUser;
+};
+
+/**
+ * 更新用户信息
+ * @param user { name: string; password: string }
+ * @returns
+ */
+export const updateUserDetail = async (user: IUser): Promise<IUser> => {
+  const result = (await HttpClient.patch(API_USER.UPDATE, user)) as any;
+  return result as IUser;
 };

@@ -102,7 +102,6 @@ export function SessionConfigModel(props: {
   showModalType: MaskType;
   onClose: () => void;
 }) {
-  console.log("SessionConfigModel");
   const chatStore = useChatStore();
   const session = chatStore.currentSession();
   const maskStore = useMaskStore();
@@ -172,7 +171,6 @@ function PromptToast(props: {
   setShowModal: (_: boolean) => void;
 }) {
   const chatStore = useChatStore();
-  console.log("PromptToast");
   const session = chatStore.currentSession();
   const isNote = props.showModalType === "note";
   if (isNote && !session.noteMask) session.noteMask = createEmptyMask();
@@ -395,7 +393,6 @@ function useScrollToBottom() {
   const [autoScroll, setAutoScroll] = useState(true);
 
   function scrollDomToBottom() {
-    console.log("scrollDomToBottom");
     const dom = scrollRef.current;
     if (dom) {
       requestAnimationFrame(() => {
@@ -444,7 +441,6 @@ export function ChatActions(props: {
   // stop all responses
   const couldStop = ChatControllerPool.hasPending();
   const stopAll = () => ChatControllerPool.stopAll();
-  console.log("ChatActions");
   // switch model
   const currentModel = chatStore.currentSession().mask.modelConfig.model;
   const models = useMemo(
@@ -500,7 +496,6 @@ export function ChatActions(props: {
 
 export function EditMessageModal(props: { onClose: () => void }) {
   const chatStore = useChatStore();
-  console.log("EditMessageModal");
   const session = chatStore.currentSession();
   const [messages, setMessages] = useState(session.messages.slice());
 
@@ -565,7 +560,6 @@ function _Chat({ isAdmin = false }) {
   type RenderMessage = ChatMessage & { preview?: boolean };
 
   const chatStore = useChatStore();
-  console.log("_Chat");
   const session = chatStore.currentSession();
   const config = useAppConfig();
   const fontSize = config.fontSize;
@@ -711,11 +705,9 @@ function _Chat({ isAdmin = false }) {
   };
 
   const submitRecord = async (audio: Blob) => {
-    console.log("before covert");
     const mp3 = await transcode(audio);
-    console.log("submitRecord:", mp3, audio);
     chatStore.onRecordComplete(mp3).then((result) => {
-      console.log("result:", result);
+      // console.log("result:", result);
       if (result && inputRef?.current) {
         setUserInput(result);
       }
@@ -938,7 +930,7 @@ function _Chat({ isAdmin = false }) {
 
   // preview messages
   const renderMessages = useMemo(() => {
-    console.log("renderMessages:", session.messages, context);
+    // console.log("renderMessages:", session.messages, context);
     return context
       .concat(session.messages as RenderMessage[])
       .concat(
@@ -979,10 +971,8 @@ function _Chat({ isAdmin = false }) {
     Math.max(0, renderMessages.length - CHAT_PAGE_SIZE),
   );
   function setMsgRenderIndex(newIndex: number) {
-    console.log("setMsgRenderIndex:", newIndex);
     newIndex = Math.min(renderMessages.length - CHAT_PAGE_SIZE, newIndex);
     newIndex = Math.max(0, newIndex);
-    console.log("setedMsgRenderIndex:", newIndex);
     _setMsgRenderIndex(newIndex);
   }
 
@@ -1005,14 +995,6 @@ function _Chat({ isAdmin = false }) {
 
     const prevPageMsgIndex = msgRenderIndex - CHAT_PAGE_SIZE;
     const nextPageMsgIndex = msgRenderIndex + CHAT_PAGE_SIZE;
-    console.log(
-      "onChatBodyScroll:",
-      e.scrollTop,
-      e.clientHeight,
-      e.scrollHeight,
-      isTouchTopEdge,
-      isTouchBottomEdge,
-    );
     if (isTouchTopEdge && !isTouchBottomEdge) {
       setMsgRenderIndex(prevPageMsgIndex);
     } else if (isTouchBottomEdge) {
@@ -1024,7 +1006,6 @@ function _Chat({ isAdmin = false }) {
   };
 
   function scrollToBottom() {
-    console.log("scrollToBottom");
     setMsgRenderIndex(renderMessages.length - CHAT_PAGE_SIZE);
     scrollDomToBottom();
   }
@@ -1032,7 +1013,7 @@ function _Chat({ isAdmin = false }) {
   const { selection, updateSelection } = useMessageSelector();
 
   const makeDiary = () => {
-    console.log("messages:", (session.lastNodeIndex || 0) >= messages.length);
+    console.log("makeDiary:", (session.lastNodeIndex || 0) >= messages.length);
     // if ((session.lastNodeIndex || 0) >= messages.length) return;
     setIsLoading(true);
     chatStore.onMakeDiary().then(() => setIsLoading(false));
@@ -1124,11 +1105,11 @@ function _Chat({ isAdmin = false }) {
       messages = (await getMessages(id)) as ChatMessage[];
     }
     const config = await getChatSession(id);
-    console.log("currentSession:", config, oldSession, messages);
+    // console.log("currentSession:", config, oldSession, messages);
     if (config) {
       setOnlyNote(config.type === 1);
       chatStore.updateCurrentSession(async (curSession) => {
-        console.log("updateCurrentSession:", curSession);
+        // console.log("updateCurrentSession:", curSession);
         curSession.name = config.name;
         curSession.mask = config.mask;
         curSession.noteMask = config.noteMask;
@@ -1138,14 +1119,7 @@ function _Chat({ isAdmin = false }) {
     }
     setMsgRenderIndex(messages.length - CHAT_PAGE_SIZE);
     setAutoScroll(true);
-    // console.log(
-    //   "update message:",
-    //   session.messages,
-    //   chatStore.currentSession(),
-    // );
   };
-
-  console.log("render:", messages);
 
   return (
     <div className={styles.chat} key={session.id}>
@@ -1234,14 +1208,13 @@ function _Chat({ isAdmin = false }) {
             />
           </div>
         )}
+        <PromptToast
+          showToast={!hitBottom}
+          showModal={showPromptModal}
+          showModalType={showPromptModalType}
+          setShowModal={setShowPromptModal}
+        />
       </div>
-
-      <PromptToast
-        showToast={!hitBottom}
-        showModal={showPromptModal}
-        showModalType={showPromptModalType}
-        setShowModal={setShowPromptModal}
-      />
 
       <div
         className={styles["chat-body"]}
@@ -1270,7 +1243,7 @@ function _Chat({ isAdmin = false }) {
           const shouldShowClearContextDivider = i === clearContextIndex - 1;
 
           return (
-            <Fragment key={`${i}-${message.id}`}>
+            <Fragment key={`${message.id || i}`}>
               <div
                 className={
                   isUser ? styles["chat-message-user"] : styles["chat-message"]

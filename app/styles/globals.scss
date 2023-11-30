@@ -1,6 +1,11 @@
 @import "./animation.scss";
 @import "./window.scss";
 
+p {
+  margin-block-start: 0;
+  margin-block-end: 0;
+}
+
 @mixin light {
   --theme: light;
 
@@ -111,6 +116,10 @@ body {
   @media only screen and (max-width: 600px) {
     background-color: var(--second);
   }
+}
+
+* {
+  box-sizing: border-box;
 }
 
 ::-webkit-scrollbar {
@@ -358,4 +367,14 @@ pre {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.page-header {
+  height: 70px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 1;
+  border-bottom: 1px solid rgba(0, 0, 0, .1);
 }

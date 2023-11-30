@@ -173,6 +173,6 @@ export const NOTE_SESSION_ID = "00251f88-6dc8-4cf3-8a7c-977c39cca612"; // online
 
 export const MY_SESSION_LIST = [
   { id: "d501a9c7-e603-4f9a-9c3f-01236af072f9", name: "Dr. Cui" },
-  { id: "693faeb6-f9a6-46b6-abcb-c681d1225e9d", name: "覆盘助手" },
+  { id: "693faeb6-f9a6-46b6-abcb-c681d1225e9d", name: "retrosPal" },
   { id: "11610967-fde0-4ac4-8c24-833649877250", name: "家书助手" },
 ];

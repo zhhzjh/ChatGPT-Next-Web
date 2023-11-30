@@ -30,6 +30,7 @@ export const API_MESSAGE = {
 export const API_NOTE = {
   CREATE: "/note/create",
   DELETE: "/note/delete",
+  UPDATE: "/note/update",
   GET: "/note/get",
   GET_DETAIL: "/note/get/detail",
 };

@@ -6,13 +6,25 @@
 }
 
 .note-detail-wrap {
+  height: 100%;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .note-title {
   text-align: center;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.note-more {
+  cursor: pointer;
+  display: block;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 24px;
 }
 
 .note-list {
@@ -33,6 +45,7 @@
   text-decoration: none;
   display: block;
   position: relative;
+  cursor: pointer;
 
   &:hover {
     .note-delete {
@@ -46,4 +59,55 @@
     top: 2px;
     display: block;
   }
+}
+
+.note-modal {
+  position: absolute;
+  z-index: 99;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+.note-mask {
+  position: absolute;
+  z-index: 100;
+  width: 100%;
+  height: 100%;
+  background-color: rgba($color: #000000, $alpha: 0.3);
+}
+
+.note-modal-content {
+  position: fixed;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 35px 15px 15px;
+  background-color: #fff;
+  z-index: 101;
+
+  .note-model-list {
+    color: #444;
+    text-align: center;
+    font-size: 18px;
+    width: 100%;
+    line-height: 40px;
+    height: 40px;
+    cursor: pointer;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid rgba($color: #333, $alpha: 0.1);
+    }
+  }
+}
+
+.note-modal-action {
+  position: absolute;
+  top: 10px;
+  right: 10px;
 }

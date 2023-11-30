@@ -36,3 +36,8 @@ export const deleteNote = async (id: string): Promise<Note> => {
   console.log("deleted:", id, res);
   return res as unknown as Note;
 };
+
+export const updateNote = async (note: Note): Promise<Note> => {
+  const res = await HttpClient.post(API_NOTE.UPDATE, { note });
+  return res as unknown as Note;
+};

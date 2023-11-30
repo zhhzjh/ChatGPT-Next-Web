@@ -45,6 +45,9 @@ export function createMessage(override: Partial<ChatMessage>): ChatMessage {
 
 export type BaseNote = {
   chatSessionId: string;
+  chatSessionName?: string;
+  originMessageIds: string;
+  title?: string;
   content: string;
   role: string;
   flag: number;
@@ -53,7 +56,7 @@ export type BaseNote = {
 export type Note = BaseNote & {
   id: string;
   userId: string;
-  originMessageIds: string;
+  title?: string;
   createdAt: string;
 };
 
@@ -556,6 +559,7 @@ export const useChatStore = createPersistStore(
                   role,
                   chatSessionId,
                   flag: 0,
+                  originMessageIds: "",
                 },
                 toBeSummarizedMsgs,
               );
@@ -595,6 +599,7 @@ export const useChatStore = createPersistStore(
           },
         });
       },
+
       getMemoryPrompt() {
         const session = get().currentSession();
 

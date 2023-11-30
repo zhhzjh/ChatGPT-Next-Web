@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { NOTE_SESSION_ID, Path } from "../constant";
 import CloseIcon from "../icons/close.svg";
 import { IconButton } from "../components/button";
+import { NoteCard } from "../components/note-card";
 
 export const NotePage = () => {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -42,9 +43,9 @@ export const NotePage = () => {
       <div className={styles["note-list"]}>
         {notes.map((note, i) => {
           return note?.id ? (
-            <Link
+            <div
               key={note.id}
-              to={`${Path.NoteDetail}/${note.id}`}
+              onClick={() => navigate(`${Path.NoteDetail}/${note.id}`)}
               className={styles["note-link"]}
             >
               <IconButton
@@ -55,8 +56,8 @@ export const NotePage = () => {
                   onDelte(note.id);
                 }}
               />
-              <NoteItem note={note} />
-            </Link>
+              <NoteCard note={note} />
+            </div>
           ) : null;
         })}
       </div>

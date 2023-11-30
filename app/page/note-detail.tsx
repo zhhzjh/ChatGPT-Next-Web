@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getNoteDetail, updateNote } from "../request/note";
-import { NoteItem } from "../components/note";
+import { RefNoteItem } from "../components/note";
 import { Note } from "../store";
 import styles from "./notes.module.scss";
 import { IconButton } from "../components/button";
@@ -110,11 +110,7 @@ export const NoteDetail = () => {
             ...
           </span>
         </div>
-        {note?.content && (
-          <div ref={noteRef}>
-            <NoteItem note={note} />
-          </div>
-        )}
+        {note?.content && <RefNoteItem ref={noteRef} note={note} />}
       </div>
       {showModal && (
         <div className={styles["note-modal"]}>

@@ -553,14 +553,22 @@
 }
 
 .chat-input-record {
-  width: 30px !important;
-  height: 30px !important;
-  border-radius: 50% !important;
   position: absolute;
   left: 30px;
   bottom: 40px;
   display: flex;
   justify-content: center;
+
+  &:global(.audio-recorder) {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+  }
+
+  &:global(.recording) {
+    width: 300px;
+    border-radius: 12px;
+  }
 
   img {
     padding: 7px;

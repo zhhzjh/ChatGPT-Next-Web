@@ -78,6 +78,7 @@
   width: 100%;
   height: 100%;
   background-color: rgba($color: #000000, $alpha: 0.3);
+  box-sizing: border-box;
 }
 
 .note-modal-content {
@@ -90,6 +91,7 @@
   padding: 35px 15px 15px;
   background-color: #fff;
   z-index: 101;
+  box-sizing: border-box;
 
   .note-model-list {
     color: #444;
@@ -99,6 +101,7 @@
     line-height: 40px;
     height: 40px;
     cursor: pointer;
+    box-sizing: border-box;
 
     &:not(:last-child) {
       border-bottom: 1px solid rgba($color: #333, $alpha: 0.1);

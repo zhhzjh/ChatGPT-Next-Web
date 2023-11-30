@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { deleteNote, getNote } from "../request/note";
 import { Note } from "../store";
-import { NoteItem } from "../components/note";
 import styles from "./notes.module.scss";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { NOTE_SESSION_ID, Path } from "../constant";
 import CloseIcon from "../icons/close.svg";
 import { IconButton } from "../components/button";

@@ -86,6 +86,8 @@ import { deleteMessage, getMessages, updateMessage } from "../request/message";
 import { toBlobURL } from "@ffmpeg/util";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { covertAudio } from "../utils/audio";
+import { DEFAULT_USER, IUser } from "../store/user";
+import { getUserDetail } from "../request/user";
 
 const Markdown = dynamic(
   async () => (await import("../components/markdown")).Markdown,
@@ -589,6 +591,7 @@ function _Chat({ isAdmin = false }) {
 
   // auto grow input
   const [inputRows, setInputRows] = useState(2);
+
   const measure = useDebouncedCallback(
     () => {
       const rows = inputRef.current ? autoGrowTextArea(inputRef.current) : 1;
@@ -606,6 +609,12 @@ function _Chat({ isAdmin = false }) {
   );
 
   const { id: chatId } = useParams();
+
+  // update User
+  const [user, setUser] = useState<IUser>(DEFAULT_USER);
+  useEffect(() => {
+    getUserDetail().then((data) => setUser(data));
+  }, []);
 
   // 初始化笔记数据
   useEffect(() => {
@@ -1266,7 +1275,7 @@ function _Chat({ isAdmin = false }) {
                         ></IconButton>
                       </div>
                       {isUser ? (
-                        <Avatar avatar={config.avatar} />
+                        <Avatar avatar={user.avatar} />
                       ) : (
                         <>
                           {["system"].includes(message.role) ? (

@@ -42,11 +42,7 @@ export const NotePage = () => {
       <div className={styles["note-list"]}>
         {notes.map((note, i) => {
           return note?.id ? (
-            <div
-              key={note.id}
-              onClick={() => navigate(`${Path.NoteDetail}/${note.id}`)}
-              className={styles["note-link"]}
-            >
+            <div key={note.id} className={styles["note-link"]}>
               <IconButton
                 className={styles["note-delete"]}
                 icon={<CloseIcon />}

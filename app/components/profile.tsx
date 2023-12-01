@@ -4,7 +4,7 @@ import { Avatar, AvatarPicker } from "./emoji";
 import { useCallback, useEffect, useState } from "react";
 import { DEFAULT_MASK_AVATAR } from "../store/mask";
 import { getUserDetail, updateUserDetail } from "../request/user";
-import { IUser } from "../store/user";
+import { IUser, useUserStore } from "../store/user";
 import { useDebouncedCallback } from "use-debounce";
 
 export const Profile = () => {
@@ -12,17 +12,24 @@ export const Profile = () => {
   const [showPicker, setShowPicker] = useState(false);
   const [user, setUser] = useState<IUser>({ id: "", name: "", isAdmin: 0 });
 
+  const userStore = useUserStore();
+
   const updateEmoji = (emoji: string) => {
     console.log("updateEmoji:", emoji);
     updateUser({ ...user, avatar: emoji });
   };
 
   const updateUser = (user: IUser) => {
-    console.log("updateUser:", user);
+    // console.log("updateUser:", user);
     updateUserDetail(user).then((data) => setUser(data));
   };
 
   useEffect(() => {
+    // console.log("user:", userStore.user());
+    // userStore.updateUser().then(() => {
+    //   console.log("got user:", userStore.user());
+    //   setUser(userStore.user());
+    // });
     getUserDetail().then((data) => setUser(data));
   }, []);
 

@@ -17,10 +17,6 @@ export type SearchUserProps = {
 const _SearchUser = ({ onChange }: { onChange: (data: IUser[]) => void }) => {
   const [users, setUsers] = useState<IUser[]>([]);
   const [selectUsers, setSelectUsers] = useState<IUser[]>([]);
-  useEffect(() => {
-    onChange(selectUsers);
-    console.log("onChange:", selectUsers);
-  }, [selectUsers, onChange]);
   const debounceSearch = useDebouncedCallback((key: string) => {
     if (!key) {
       setUsers([]);
@@ -32,6 +28,7 @@ const _SearchUser = ({ onChange }: { onChange: (data: IUser[]) => void }) => {
   }, 500);
 
   const updateUser = (data: IUser[]) => {
+    console.log("onChange:", selectUsers);
     onChange(data);
     setSelectUsers(data);
   };
@@ -123,7 +120,14 @@ export const SelectUserModal = ({
   }, [onCreated, selectUsers]);
 
   const content = useMemo(
-    () => <_SearchUser onChange={(data) => setSelectUsers(data)} />,
+    () => (
+      <_SearchUser
+        onChange={(data) => {
+          console.log("useMemo:", data);
+          setSelectUsers(data);
+        }}
+      />
+    ),
     [setSelectUsers],
   );
 

@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { List, ListItem, showModal, showToast } from "./ui-lib";
+import { List, ListItem, Modal, showModal, showToast } from "./ui-lib";
 import { IUser } from "../store/user";
 import { searchUser } from "../request/user";
 import { useDebouncedCallback } from "use-debounce";
 import { IconButton } from "./button";
 import { createGroup } from "../request/group";
+import CancelIcon from "../icons/cancel.svg";
 import styles from "./user-select.module.scss";
+import { createRoot } from "react-dom/client";
 
 export type SearchUserProps = {
   title: string;
-  open: boolean;
-  changeVisible?: (visible: boolean) => void;
   onCreated?: () => void;
 };
 
@@ -96,7 +96,7 @@ const _SearchUser = ({ onChange }: { onChange: (data: IUser[]) => void }) => {
   );
 };
 
-export const SelectUserModal = ({
+/* export const SelectUserModal = ({
   title,
   changeVisible = () => void 0,
   onCreated,
@@ -156,4 +156,60 @@ export const SelectUserModal = ({
     [content, onClose, onCreateGroup, show, title],
   );
   return <></>;
+}; */
+
+export const showUserSelect = ({ title, onCreated }: SearchUserProps) => {
+  const div = document.createElement("div");
+  div.className = "modal-mask";
+  document.body.appendChild(div);
+
+  const root = createRoot(div);
+  const closeModal = () => {
+    root.unmount();
+    div.remove();
+  };
+  let userData: IUser[] = [];
+  const onCreateGroup = () => {
+    console.log("onCreateGroup:", userData);
+    if (userData?.length > 0) {
+      createGroup(userData.map((user) => user.id)).then(() => {
+        onCreated?.();
+        closeModal();
+      });
+    } else {
+      showToast("请选择一个用户");
+    }
+  };
+  root.render(
+    <Modal
+      title={title}
+      actions={[
+        <IconButton
+          key="cancel"
+          text={"取消"}
+          onClick={() => {
+            closeModal();
+          }}
+          icon={<CancelIcon />}
+          bordered
+          shadow
+          tabIndex={0}
+        ></IconButton>,
+        <IconButton
+          key="confirm"
+          type={"primary"}
+          text="创建群组"
+          onClick={() => onCreateGroup()}
+        />,
+      ]}
+      onClose={closeModal}
+    >
+      <_SearchUser
+        onChange={(data) => {
+          console.log("useMemo:", data);
+          userData = data.concat();
+        }}
+      />
+    </Modal>,
+  );
 };

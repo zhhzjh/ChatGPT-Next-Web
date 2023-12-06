@@ -10,15 +10,16 @@ import { IconButton } from "../components/button";
 import { NoteCard } from "../components/note-card";
 import { Group } from "../store/group";
 import { getGroupNotes, getMyGroup } from "../request/group";
-import { SelectUserModal } from "../components/user-select";
 import { DEFAULT_USER, IUser } from "../store/user";
 import { getUserDetail } from "../request/user";
+import { showUserSelect } from "../components/user-select";
+
+const MAX_GROUPS = 10;
 
 export const NotePage = () => {
   const [notes, setNotes] = useState<Note[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
   const [groupId, setGroupId] = useState<string | null>(null);
-  const [openSearch, setOpenSearch] = useState(false);
   const [user, setUser] = useState<IUser>(DEFAULT_USER);
   const navigate = useNavigate();
 
@@ -63,12 +64,6 @@ export const NotePage = () => {
 
   return (
     <div className={styles["note-wrap"]}>
-      <SelectUserModal
-        open={openSearch}
-        changeVisible={(visible) => setOpenSearch(visible)}
-        onCreated={() => initGroup()}
-        title="新建群组"
-      />
       <h1 className={styles["note-title"]}>如溪</h1>
       <div className={styles["group-list"]}>
         <IconButton
@@ -85,12 +80,17 @@ export const NotePage = () => {
             text={group.name || "我的群组"}
           />
         ))}
-        {groups.filter((group) => group.auth === 1).length < 2 ? (
+        {groups.filter((group) => group.auth === 1).length < MAX_GROUPS ? (
           <IconButton
             key={"add"}
             icon={<AddIcon />}
             className={`${styles["group-item"]} ${styles["group-add"]}`}
-            onClick={() => setOpenSearch(true)}
+            onClick={() =>
+              showUserSelect({
+                onCreated: () => initGroup(),
+                title: "新建群组",
+              })
+            }
           />
         ) : null}
       </div>

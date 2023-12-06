@@ -14,7 +14,7 @@ import { DEFAULT_USER, IUser } from "../store/user";
 import { getUserDetail } from "../request/user";
 import { showUserSelect } from "../components/user-select";
 
-const MAX_GROUPS = 10;
+const MAX_GROUPS = 2;
 
 export const NotePage = () => {
   const [notes, setNotes] = useState<Note[]>([]);

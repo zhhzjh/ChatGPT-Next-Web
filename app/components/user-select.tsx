@@ -139,7 +139,7 @@ export const SelectUserModal = ({
         onClick={() => onCreateGroup()}
       />
     ),
-    [],
+    [onCreateGroup],
   );
 
   useEffect(() => {

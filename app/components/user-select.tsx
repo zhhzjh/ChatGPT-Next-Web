@@ -131,17 +131,6 @@ export const SelectUserModal = ({
     [setSelectUsers],
   );
 
-  const CreateAction = useMemo(
-    () => (
-      <IconButton
-        type={"primary"}
-        text="创建群组"
-        onClick={() => onCreateGroup()}
-      />
-    ),
-    [onCreateGroup],
-  );
-
   useEffect(() => {
     setShow(open);
     open || onClose();
@@ -154,10 +143,17 @@ export const SelectUserModal = ({
             title,
             onClose,
             children: content,
-            actions: [CreateAction],
+            actions: [
+              <IconButton
+                key="confirm"
+                type={"primary"}
+                text="创建群组"
+                onClick={() => onCreateGroup()}
+              />,
+            ],
           })
         : void 0,
-    [CreateAction, content, onClose, show, title],
+    [content, onClose, onCreateGroup, show, title],
   );
   return <></>;
 };

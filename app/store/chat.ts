@@ -336,7 +336,7 @@ export const useChatStore = createPersistStore(
       currentSession() {
         let id = get().currentSessionId;
         const sessions = get().sessions;
-        console.log("getSessions:", sessions);
+        // console.log("getSessions:", sessions);
         let session: ChatSession | undefined = sessions.find(
           (session) => session.id === id,
         );

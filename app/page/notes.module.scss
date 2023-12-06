@@ -114,3 +114,29 @@
   top: 10px;
   right: 10px;
 }
+
+.group-list {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: 0;
+  padding: 10px 30px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .group-item {
+    height: 30px;
+    font-size: 20px;
+    line-height: 30px;
+    padding: 0 20px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    overflow: unset;
+    box-sizing: border-box;
+
+    &:not(:last-child) {
+      margin-right: 20px;
+    }
+  }
+}

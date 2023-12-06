@@ -22,7 +22,7 @@ export const RefNoteItem = forwardRef<Ref, IProps>((props, myRef) => {
   }
   return (
     <div className={styles["note-item"]}>
-      <div ref={myRef}>
+      <div className={styles["note-content"]} ref={myRef}>
         <Markdown content={note.content || "暂无内容"} />
         <p className={styles["note-time"]}>
           {new Date(note.createdAt).toLocaleString()}

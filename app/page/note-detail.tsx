@@ -13,6 +13,9 @@ import Locale from "../locales";
 import { getClientConfig } from "../config/client";
 import { toPng } from "html-to-image";
 import { useMobileScreen } from "../utils";
+import { getUserDetail } from "../request/user";
+import { IUser, DEFAULT_USER } from "../store/user";
+import { showGroupSelected } from "../components/group-select";
 
 export const NoteDetail = () => {
   const { id } = useParams();
@@ -20,7 +23,13 @@ export const NoteDetail = () => {
   const noteRef = useRef<HTMLDivElement>(null);
   const [showModal, setShowModal] = useState(false);
   const isMobile = useMobileScreen();
+  const [user, setUser] = useState<IUser>(DEFAULT_USER);
   const navigate = useNavigate();
+
+  // update User
+  useEffect(() => {
+    getUserDetail().then((data) => setUser(data));
+  }, []);
 
   const downloadImage = async () => {
     if (!noteRef?.current) return showToast("笔记详情不存在");
@@ -88,7 +97,7 @@ export const NoteDetail = () => {
 
   const updateContent = (content: string) => {
     if (!note) return;
-    console.log("updateContent:", content);
+    // console.log("updateContent:", content);
     updateNote({ ...note, content }).then((data) => setNote(data as Note));
   };
 
@@ -103,12 +112,14 @@ export const NoteDetail = () => {
             onClick={() => navigate(Path.Home)}
           />
           <span className={styles["note-title"]}>笔记内容</span>
-          <span
-            className={styles["note-more"]}
-            onClick={() => setShowModal(true)}
-          >
-            ...
-          </span>
+          {note?.userId === user.id && (
+            <span
+              className={styles["note-more"]}
+              onClick={() => setShowModal(true)}
+            >
+              ...
+            </span>
+          )}
         </div>
         {note?.content && <RefNoteItem ref={noteRef} note={note} />}
       </div>
@@ -129,6 +140,7 @@ export const NoteDetail = () => {
               className={styles["note-model-list"]}
               onClick={() => {
                 downloadImage();
+                setShowModal(false);
               }}
             >
               本地保存
@@ -136,6 +148,7 @@ export const NoteDetail = () => {
             <div
               className={styles["note-model-list"]}
               onClick={async () => {
+                setShowModal(false);
                 const newContent = await showPrompt(
                   Locale.Chat.Actions.Edit,
                   note?.content,
@@ -146,6 +159,17 @@ export const NoteDetail = () => {
             >
               编辑
             </div>
+            {note?.id && (
+              <div
+                className={styles["note-model-list"]}
+                onClick={() => {
+                  setShowModal(false);
+                  showGroupSelected(note.id, "选择可见群组");
+                }}
+              >
+                对谁可见
+              </div>
+            )}
           </div>
         </div>
       )}

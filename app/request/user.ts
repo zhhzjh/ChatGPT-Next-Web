@@ -42,3 +42,14 @@ export const updateUserDetail = async (user: IUser): Promise<IUser> => {
   const result = (await HttpClient.patch(API_USER.UPDATE, user)) as any;
   return result as IUser;
 };
+
+/**
+ * 搜索用户
+ * @param key string
+ * @returns
+ */
+export const searchUser = async (key: string): Promise<IUser[]> => {
+  if (!key) return [];
+  const result = (await HttpClient.get(`${API_USER.SEARCH}?key=${key}`)) as any;
+  return result as IUser[];
+};

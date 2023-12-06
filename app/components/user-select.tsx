@@ -1,19 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import styles from "./user-select.scss";
-import CloseIcon from "../icons/close.svg";
-import {
-  List,
-  ListItem,
-  Modal,
-  Selector,
-  showModal,
-  showToast,
-} from "./ui-lib";
+import { List, ListItem, showModal, showToast } from "./ui-lib";
 import { IUser } from "../store/user";
 import { searchUser } from "../request/user";
 import { useDebouncedCallback } from "use-debounce";
 import { IconButton } from "./button";
 import { createGroup } from "../request/group";
+import styles from "./user-select.module.scss";
+
 export type SearchUserProps = {
   title: string;
   open: boolean;
@@ -37,6 +30,11 @@ const _SearchUser = ({ onChange }: { onChange: (data: IUser[]) => void }) => {
       setUsers(data);
     });
   }, 500);
+
+  const updateUser = (data: IUser[]) => {
+    onChange(data);
+    setSelectUsers(data);
+  };
   return (
     <div className={styles["user-select"]}>
       <input
@@ -50,9 +48,9 @@ const _SearchUser = ({ onChange }: { onChange: (data: IUser[]) => void }) => {
         {selectUsers.map((user) => (
           <div
             key={user.id}
-            onClick={() =>
-              setSelectUsers(selectUsers.filter((sel) => sel.id !== user.id))
-            }
+            onClick={() => {
+              updateUser(selectUsers.filter((sel) => sel.id !== user.id));
+            }}
             className={styles["user-selected-item"]}
           >
             <span>{user.nickname || user.name}</span>
@@ -73,7 +71,7 @@ const _SearchUser = ({ onChange }: { onChange: (data: IUser[]) => void }) => {
                 title={user.nickname || user.name}
                 key={user.id}
                 onClick={() => {
-                  setSelectUsers(
+                  updateUser(
                     selected
                       ? selectUsers.filter((sel) => sel.id !== user.id)
                       : selectUsers.concat([user]),

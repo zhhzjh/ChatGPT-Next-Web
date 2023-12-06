@@ -3,6 +3,13 @@
   flex-direction: column;
   overflow: hidden;
   padding: 20px;
+
+  .note-more {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    // text-align: right;
+  }
 }
 
 .note-detail-wrap {
@@ -16,6 +23,7 @@
   text-align: center;
   font-weight: bold;
   font-size: 20px;
+  position: relative;
 }
 
 .note-more {

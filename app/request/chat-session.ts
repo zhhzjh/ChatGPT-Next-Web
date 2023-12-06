@@ -41,7 +41,7 @@ export const updateChatSession = async (config: ChatConfig) => {
 // };
 
 export const getChatSession = async (id: string) => {
-  const res = (await HttpClient.post(API_CHAT_SESSION.GET, { id })) as {
+  const res = (await HttpClient.get(`${API_CHAT_SESSION.GET}?id=${id}`)) as {
     mask: Mask;
     noteMask: Mask;
     name: string;

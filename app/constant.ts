@@ -173,6 +173,8 @@ export const NOTE_SESSION_ID = "00251f88-6dc8-4cf3-8a7c-977c39cca612"; // online
 // export const NOTE_SESSION_ID = "00251f88-6dc8-4cf3-8a7c-977c39cca612"; // local
 
 export const MY_SESSION_LIST = [
+  { id: "d4075bf2-f7e7-483f-ad53-912be060b8a9", name: "麦当劳" },
+  { id: "9c16dfe3-a849-40d2-9a26-9aa0a25eaa55", name: "星爸爸", hide: true },
   { id: "d501a9c7-e603-4f9a-9c3f-01236af072f9", name: "Dr. Cui" },
   { id: "693faeb6-f9a6-46b6-abcb-c681d1225e9d", name: "retrosPal" },
   { id: "11610967-fde0-4ac4-8c24-833649877250", name: "家书助手" },

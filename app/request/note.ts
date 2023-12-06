@@ -3,7 +3,11 @@ import { Group } from "../store/group";
 import { API_NOTE } from "./constant";
 import { HttpClient } from "./fetch";
 
-export const createNotes = async (note: BaseNote, messages: BaseMessage[]) => {
+export const createNotes = async (
+  note: BaseNote,
+  messages: BaseMessage[],
+  groupId?: string,
+) => {
   const requestMessages = messages.map((message) => {
     const { role, content, chatSessionId } = message;
     return { role, content, chatSessionId };
@@ -11,7 +15,7 @@ export const createNotes = async (note: BaseNote, messages: BaseMessage[]) => {
   const res = await HttpClient.request({
     method: "POST",
     url: API_NOTE.CREATE,
-    data: { messages: requestMessages, note },
+    data: { messages: requestMessages, note, groupId },
   });
   console.log("createNotes:", res);
   return res;

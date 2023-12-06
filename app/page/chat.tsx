@@ -608,7 +608,7 @@ function _Chat({ isAdmin = false }) {
     },
   );
 
-  const { id: chatId } = useParams();
+  const { id: chatId, groupId: groupId } = useParams();
 
   // update User
   const [user, setUser] = useState<IUser>(DEFAULT_USER);
@@ -1025,7 +1025,7 @@ function _Chat({ isAdmin = false }) {
     console.log("makeDiary:", (session.lastNodeIndex || 0) >= messages.length);
     // if ((session.lastNodeIndex || 0) >= messages.length) return;
     setIsLoading(true);
-    chatStore.onMakeDiary().then(() => setIsLoading(false));
+    chatStore.onMakeDiary(groupId).then(() => setIsLoading(false));
     inputRef.current?.focus();
   };
 

@@ -170,6 +170,7 @@ function Screen() {
               <Route path={Path.Home} element={<Notes />} />
               <Route path={Path.Chat} element={<Chat />} />
               <Route path={`${Path.Chat}/:id`} element={<Chat />} />
+              <Route path={`${Path.Chat}/:id/:groupId`} element={<Chat />} />
               <Route path={Path.Settings} element={<Settings />} />
               <Route
                 path={`${Path.ChatSetting}/:id`}

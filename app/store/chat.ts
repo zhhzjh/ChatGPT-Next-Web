@@ -467,7 +467,7 @@ export const useChatStore = createPersistStore(
         });
       },
 
-      async onMakeDiary() {
+      async onMakeDiary(groupId?: string) {
         const session = get().currentSession();
         if (!session.noteMask) session.noteMask = createEmptyMask();
         const modelConfig = session.noteMask.modelConfig;
@@ -562,6 +562,7 @@ export const useChatStore = createPersistStore(
                   originMessageIds: "",
                 },
                 toBeSummarizedMsgs,
+                groupId,
               );
               // console.log("onMakeDiary finish:", result);
             }

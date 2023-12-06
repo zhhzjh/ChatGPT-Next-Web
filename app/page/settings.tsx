@@ -12,16 +12,18 @@ export const Settings = () => {
         <Profile />
       </div>
       <div className={styles["my-chat-list"]}>
-        {MY_SESSION_LIST.map((chat) => (
-          <IconButton
-            className={`${styles["chat-tab"]}`}
-            onClick={() => {
-              navigate(`${Path.Chat}/${chat.id}`);
-            }}
-            key={chat.id}
-            text={chat.name}
-          />
-        ))}
+        {MY_SESSION_LIST.map((chat) => {
+          return chat.hide ? null : (
+            <IconButton
+              className={`${styles["chat-tab"]}`}
+              onClick={() => {
+                navigate(`${Path.Chat}/${chat.id}`);
+              }}
+              key={chat.id}
+              text={chat.name}
+            />
+          );
+        })}
       </div>
     </div>
   );

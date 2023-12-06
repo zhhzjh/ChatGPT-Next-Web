@@ -42,8 +42,10 @@ export const API_GROUP = {
   GET: "/group/get", // 读取用户group
   GET_MEMBERS: "/group/members", // 读取group成员
   GET_NOTES: "/group/notes", // 读取group笔记
-  ADD_MEMBERS: "/group/add/members", // 添加成员至group // TODO
-  UPDATE_MEMBERS: "/group/update/members", // 更新members与group关系 //TODO
+  ADD_MEMBERS: "/group/add/members", // 添加成员至group
+  UPDATE_MEMBERS: "/group/update/members", // 更新members与group关系
+  LEAVE: "/group/leave", // 退出群组
+  DESTORY: "/group/destory", // 解散群组
   ADD_NOTE: "/group/add/note", // 添加笔记至group
   UPDATE_NOTES: "/group/update/notes", //更新笔记与group关系
 };

@@ -12,6 +12,10 @@ export interface IUser {
   information?: string;
 }
 
+export interface IMember extends IUser {
+  flag?: number;
+}
+
 export const DEFAULT_USER: IUser = {
   id: "",
   name: "guest",

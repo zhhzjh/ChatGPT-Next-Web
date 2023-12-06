@@ -14,12 +14,12 @@ import { DEFAULT_USER, IUser } from "../store/user";
 import { getUserDetail } from "../request/user";
 import { showUserSelect } from "../components/user-select";
 
-const MAX_GROUPS = 2;
+const MAX_GROUPS = 10;
 
 export const NotePage = () => {
   const [notes, setNotes] = useState<Note[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
-  const [groupId, setGroupId] = useState<string | null>(null);
+  const [group, setGroup] = useState<Group | null>(null);
   const [user, setUser] = useState<IUser>(DEFAULT_USER);
   const navigate = useNavigate();
 
@@ -29,17 +29,17 @@ export const NotePage = () => {
   }, []);
 
   const getNoteData = useCallback(() => {
-    if (!groupId) {
+    if (!group) {
       getNote().then((data) => {
         const notes = data as Note[];
         setNotes(notes);
       });
     } else {
-      getGroupNotes(groupId).then((data) => {
+      getGroupNotes(group.id).then((data) => {
         setNotes(data);
       });
     }
-  }, [groupId]);
+  }, [group]);
   useEffect(() => {
     getNoteData();
   }, [getNoteData]);
@@ -64,18 +64,34 @@ export const NotePage = () => {
 
   return (
     <div className={styles["note-wrap"]}>
-      <h1 className={styles["note-title"]}>如溪</h1>
+      <div className={styles["note-title"]}>
+        <span>如溪</span>
+        {group && (
+          <span
+            className={styles["note-more"]}
+            onClick={() =>
+              showUserSelect({
+                user: user,
+                group: group,
+                onCreated: () => initGroup(),
+              })
+            }
+          >
+            ...
+          </span>
+        )}
+      </div>
       <div className={styles["group-list"]}>
         <IconButton
           key={"me"}
           className={styles["group-item"]}
-          onClick={() => setGroupId(null)}
+          onClick={() => setGroup(null)}
           text={"Me"}
         />
         {groups.map((group) => (
           <IconButton
             key={group.id}
-            onClick={() => setGroupId(group.id)}
+            onClick={() => setGroup(group)}
             className={styles["group-item"]}
             text={group.name || "我的群组"}
           />
@@ -87,8 +103,8 @@ export const NotePage = () => {
             className={`${styles["group-item"]} ${styles["group-add"]}`}
             onClick={() =>
               showUserSelect({
+                user,
                 onCreated: () => initGroup(),
-                title: "新建群组",
               })
             }
           />
@@ -96,7 +112,11 @@ export const NotePage = () => {
       </div>
       <div
         className={styles["new-note"]}
-        onClick={() => navigate(`${Path.Chat}/${NOTE_SESSION_ID}`)}
+        onClick={() =>
+          navigate(
+            `${Path.Chat}/${NOTE_SESSION_ID}${group?.id ? "/" + group.id : ""}`,
+          )
+        }
       >
         +
       </div>

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Path } from "../constant";
 import Locale from "../locales";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getClientConfig } from "../config/client";
 import { login } from "../request/user";
 import { IconButton } from "../components/button";
@@ -12,18 +12,20 @@ import { showToast } from "../components/ui-lib";
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const user = { name: "", password: "" };
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  // const user = { name: "", password: "" };
 
   const goLogin = async () => {
-    if (user.name === "") {
+    if (!name) {
       showToast("请输入用户名");
       return;
     }
-    if (user.password === "") {
+    if (!password) {
       showToast("请输入密码");
       return;
     }
-    const loginUser = await login(user);
+    const loginUser = await login({ name, password });
     if (loginUser && loginUser.id) {
       showToast("login success");
       navigate(Path.Home);
@@ -45,7 +47,7 @@ export function LoginPage() {
         className={styles["auth-input"]}
         placeholder={"请输入用户名"}
         onChange={(e) => {
-          user.name = e.currentTarget.value;
+          setName(e.currentTarget.value);
         }}
       />
       <div className={styles["auth-tips"]}>{"密码"}</div>
@@ -54,7 +56,7 @@ export function LoginPage() {
         type="password"
         placeholder={Locale.Settings.Token.Placeholder}
         onChange={(e) => {
-          user.password = e.currentTarget.value;
+          setPassword(e.currentTarget.value);
         }}
       />
       <div className={styles["auth-actions"]}>

@@ -2,10 +2,8 @@ import { useDebouncedCallback } from "use-debounce";
 import React, { useState, useRef, useEffect, useMemo, Fragment } from "react";
 
 import SendWhiteIcon from "../icons/send-white.svg";
-import BrainIcon from "../icons/brain.svg";
 import RenameIcon from "../icons/rename.svg";
 import ExportIcon from "../icons/share.svg";
-import ReturnIcon from "../icons/return.svg";
 import CopyIcon from "../icons/copy.svg";
 import LoadingIcon from "../icons/three-dots.svg";
 import NoteIcon from "../icons/notes.svg";
@@ -15,7 +13,6 @@ import ResetIcon from "../icons/reload.svg";
 import BreakIcon from "../icons/break.svg";
 import SettingsIcon from "../icons/chat-settings.svg";
 import DeleteIcon from "../icons/clear.svg";
-import PinIcon from "../icons/pin.svg";
 import EditIcon from "../icons/rename.svg";
 import ConfirmIcon from "../icons/confirm.svg";
 import CancelIcon from "../icons/cancel.svg";
@@ -66,26 +63,21 @@ import {
   CHAT_LIST,
   CHAT_PAGE_SIZE,
   LAST_INPUT_KEY,
-  NOTE_SESSION_ID,
   Path,
-  REQUEST_TIMEOUT_MS,
   UNFINISHED_INPUT,
 } from "../constant";
 import { Avatar } from "../components/emoji";
 import { ContextPrompts, MaskAvatar, MaskConfig } from "../components/mask";
 import { createEmptyMask, useMaskStore } from "../store/mask";
 import { ChatCommandPrefix, useChatCommand, useCommand } from "../command";
-import { prettyObject } from "../utils/format";
 import { ExportMessageModal } from "../components/exporter";
 import { getClientConfig } from "../config/client";
 import { useMessageSelector } from "../components/message-selector";
 import { AudioRecorder } from "react-audio-voice-recorder";
 import { getChatSession } from "../request/chat-session";
 import { deleteMessage, getMessages, updateMessage } from "../request/message";
-// import { covertAudio } from "../utils/audio";
 import { toBlobURL } from "@ffmpeg/util";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { covertAudio } from "../utils/audio";
 import { DEFAULT_USER, IUser } from "../store/user";
 import { getUserDetail } from "../request/user";
 

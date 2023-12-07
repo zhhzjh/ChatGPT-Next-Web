@@ -15,10 +15,10 @@
 }
 
 .note-card {
-  margin-bottom: 15px;
   padding: 15px;
   border: 1px solid #ddd;
   border-radius: 5px;
+  box-sizing: border-box;
 
   .note-title {
     font-size: 18px;

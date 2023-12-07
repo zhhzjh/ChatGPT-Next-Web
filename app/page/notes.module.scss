@@ -54,6 +54,9 @@
   display: block;
   position: relative;
   cursor: pointer;
+  box-sizing: border-box;
+  height: 86px;
+  margin-bottom: 15px;
 
   &:hover {
     .note-delete {

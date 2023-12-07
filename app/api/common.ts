@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const OPENAI_URL = "api.openai.com";
 const DEFAULT_PROTOCOL = "https";
+// export const OPENAI_URL = "api.model.zzotczz.site";
+// const DEFAULT_PROTOCOL = "http";
 const PROTOCOL = process.env.PROTOCOL || DEFAULT_PROTOCOL;
 const BASE_URL = process.env.BASE_URL || OPENAI_URL;
 const DISABLE_GPT4 = !!process.env.DISABLE_GPT4;
@@ -38,9 +40,10 @@ export async function requestOpenai(req: NextRequest) {
     10 * 60 * 1000,
   );
 
-  console.log("[req body]:", req.body);
+  console.log("[req body]:", authValue, req.body);
 
   const fetchUrl = `${baseUrl}/${openaiPath}`;
+  console.log("[fetchUrl]:", fetchUrl, authValue);
   const fetchOptions: RequestInit = {
     headers: {
       "Content-Type": "application/json",
@@ -64,7 +67,6 @@ export async function requestOpenai(req: NextRequest) {
     try {
       const clonedBody = await req.text();
       fetchOptions.body = clonedBody;
-      console.log("request body:", clonedBody);
       const jsonBody = JSON.parse(clonedBody);
 
       if ((jsonBody?.model ?? "").includes("gpt-4")) {
@@ -84,8 +86,9 @@ export async function requestOpenai(req: NextRequest) {
   }
 
   try {
+    console.log("fetch:", fetchOptions);
     const res = await fetch(fetchUrl, fetchOptions);
-
+    console.log("result:", fetchOptions, res);
     // to prevent browser prompt for credentials
     const newHeaders = new Headers(res.headers);
     newHeaders.delete("www-authenticate");

@@ -62,6 +62,10 @@ export const NotePage = () => {
     });
   };
 
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className={styles["note-wrap"]}>
       <div className={styles["note-title"]}>
@@ -134,7 +138,7 @@ export const NotePage = () => {
                   }}
                 />
               )}
-              <NoteCard note={note} />
+              <NoteCard user={user} note={note} />
             </div>
           ) : null;
         })}

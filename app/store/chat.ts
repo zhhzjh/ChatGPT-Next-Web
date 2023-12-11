@@ -56,6 +56,7 @@ export type BaseNote = {
 export type Note = BaseNote & {
   id: string;
   userId: string;
+  userName?: string;
   title?: string;
   createdAt: string;
 };

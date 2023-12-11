@@ -4,6 +4,7 @@ import LoadingIcon from "../icons/three-dots.svg";
 import dynamic from "next/dynamic";
 import { Path } from "../constant";
 import { useNavigate } from "react-router-dom";
+import { IUser } from "../store/user";
 const Markdown = dynamic(
   async () => (await import("../components/markdown")).Markdown,
   {
@@ -11,9 +12,9 @@ const Markdown = dynamic(
   },
 );
 
-export const NoteCard = (props: { note: Note }) => {
+export const NoteCard = (props: { note: Note; user: IUser }) => {
   const navigate = useNavigate();
-  const { note } = props;
+  const { note, user } = props;
   if (!note) {
     return null;
   }
@@ -29,7 +30,9 @@ export const NoteCard = (props: { note: Note }) => {
         )}
       </p>
       <p className={styles["note-info"]}>
-        <span className={styles["note-from"]}>{note.chatSessionName}</span>
+        <span className={styles["note-from"]}>{`${
+          note.userId === user.id ? "我" : note.userName || "匿名"
+        } · ${note.chatSessionName}`}</span>
         <span className={styles["note-time"]}>
           {new Date(note.createdAt).toLocaleString()}
         </span>

@@ -34,6 +34,7 @@ import Nav from "../components/nav";
 import Cookies from "js-cookie";
 import { NoteDetail } from "./note-detail";
 import { AdminPage } from "./admin";
+import { pageview } from "../tools/ga";
 
 export function Loading(props: { noLogo?: boolean }) {
   return (
@@ -145,6 +146,15 @@ function Screen() {
       navigate(Path.Login);
     }
   });
+
+  // const pathname = useParams();
+  // const searchParams = useSearchParams();
+  // const router = useRoutes();
+  useEffect(() => {
+    // const url = `${pathname}?${searchParams}`;
+    console.log("on path change:", location);
+    pageview(location.pathname);
+  }, [location]);
 
   return (
     <div

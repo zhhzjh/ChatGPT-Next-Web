@@ -12,9 +12,13 @@ const Markdown = dynamic(
   },
 );
 
-export const NoteCard = (props: { note: Note; user: IUser }) => {
+export const NoteCard = (props: {
+  hideAuthor: boolean;
+  note: Note;
+  user: IUser;
+}) => {
   const navigate = useNavigate();
-  const { note, user } = props;
+  const { note, user, hideAuthor = false } = props;
   if (!note) {
     return null;
   }
@@ -30,9 +34,13 @@ export const NoteCard = (props: { note: Note; user: IUser }) => {
         )}
       </p>
       <p className={styles["note-info"]}>
-        <span className={styles["note-from"]}>{`${
-          note.userId === user.id ? "我" : note.userName || "匿名"
-        } · ${note.chatSessionName}`}</span>
+        <span className={styles["note-from"]}>
+          {hideAuthor
+            ? note.chatSessionName
+            : `${note.userId === user.id ? "我" : note.userName || "匿名"} · ${
+                note.chatSessionName
+              }`}
+        </span>
         <span className={styles["note-time"]}>
           {new Date(note.createdAt).toLocaleString()}
         </span>

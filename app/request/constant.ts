@@ -1,5 +1,5 @@
 // export const BASE_URL = "http://localhost:3100";
-// export const BASE_URL = "http://10.7.94.19:3100";
+// export const BASE_URL = process.env.SERVER_API_URL || "https://api.nanshan518.com";
 export const BASE_URL = "https://api.nanshan518.com";
 
 export const API_USER = {

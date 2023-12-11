@@ -138,7 +138,7 @@ export const NotePage = () => {
                   }}
                 />
               )}
-              <NoteCard user={user} note={note} />
+              <NoteCard hideAuthor={!group} user={user} note={note} />
             </div>
           ) : null;
         })}

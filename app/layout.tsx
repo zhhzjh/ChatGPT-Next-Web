@@ -5,7 +5,7 @@ import "./styles/highlight.scss";
 import { getClientConfig } from "./config/client";
 import { type Metadata } from "next";
 import Script from "next/script";
-import { GA_TRACKING_ID } from "./tools/ga";
+import { GA_TRACKING_ID } from "./utils/ga";
 
 export const metadata: Metadata = {
   title: "如溪",

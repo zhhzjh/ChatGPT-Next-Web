@@ -34,7 +34,7 @@ import Nav from "../components/nav";
 import Cookies from "js-cookie";
 import { NoteDetail } from "./note-detail";
 import { AdminPage } from "./admin";
-import { pageview } from "../tools/ga";
+import { pageview } from "../utils/ga";
 
 export function Loading(props: { noLogo?: boolean }) {
   return (

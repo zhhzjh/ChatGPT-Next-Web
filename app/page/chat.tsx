@@ -734,9 +734,11 @@ function _Chat({ isAdmin = false }) {
     }
     setIsLoading(!onlyNote);
 
-    chatStore.onUserInput(userInput, onlyNote).then(() => {
-      setIsLoading(false);
-    });
+    chatStore
+      .onUserInput(userInput, onlyNote, session.id === CHAT_LIST[0].id)
+      .then(() => {
+        setIsLoading(false);
+      });
     localStorage.setItem(LAST_INPUT_KEY, userInput);
     setUserInput("");
     setPromptHints([]);

@@ -12,7 +12,7 @@ import {
 } from "../constant";
 import { api, RequestMessage } from "../client/api";
 import { ChatControllerPool } from "../client/controller";
-import { prettyObject } from "../utils/format";
+import { prettyObject, separationMessage } from "../utils/format";
 import { estimateTokenLength } from "../utils/token";
 import { nanoid } from "nanoid";
 import { createPersistStore } from "../utils/store";
@@ -28,6 +28,7 @@ export type BaseMessage = RequestMessage & {
 
 export type ChatMessage = BaseMessage & {
   streaming?: boolean;
+  sliceIndex?: number;
   id: string;
   model?: ModelType;
   userId?: string;
@@ -378,7 +379,11 @@ export const useChatStore = createPersistStore(
         );
       },
 
-      async onUserInput(content: string, isOnlyNote: boolean = false) {
+      async onUserInput(
+        content: string,
+        isOnlyNote: boolean = false,
+        slice: boolean = false,
+      ) {
         const session = get().currentSession();
         const modelConfig = session.mask.modelConfig;
 
@@ -390,7 +395,7 @@ export const useChatStore = createPersistStore(
           content: userContent,
           chatSessionId: session.id,
         });
-        const botMessage: ChatMessage = createMessage({
+        let botMessage: ChatMessage = createMessage({
           role: "assistant",
           streaming: true,
           model: modelConfig.model,
@@ -421,11 +426,54 @@ export const useChatStore = createPersistStore(
           config: { ...modelConfig, stream: true },
           onUpdate(message) {
             botMessage.streaming = true;
+            console.log("onUpdate:", message);
+            const updateMessages = session.messages.concat();
             if (message) {
-              botMessage.content = message;
+              // botMessage.content = message;
+              // const newMessage = message.slice(botMessage.sliceIndex ?? 0);
+              if (slice) {
+                let { sliceIndex = 0 } = botMessage;
+                message = message.slice(sliceIndex);
+                const newMessages = separationMessage(message);
+                if (newMessages.length > 1) {
+                  botMessage.content = newMessages.shift() || "";
+                  sliceIndex += botMessage.content.length;
+                  botMessage.streaming = false;
+                  botMessage.sliceIndex = sliceIndex;
+
+                  while (newMessages.length > 1) {
+                    const content = newMessages.shift() || "";
+                    sliceIndex += content?.length ?? 0;
+                    const msg: ChatMessage = createMessage({
+                      role: "assistant",
+                      streaming: true,
+                      model: modelConfig.model,
+                      chatSessionId: session.id,
+                      content,
+                      sliceIndex,
+                    });
+                    updateMessages.push(msg);
+                  }
+                  const content = newMessages.shift() || "";
+                  sliceIndex += content?.length ?? 0;
+                  botMessage = createMessage({
+                    role: "assistant",
+                    streaming: true,
+                    model: modelConfig.model,
+                    chatSessionId: session.id,
+                    content,
+                    sliceIndex,
+                  });
+                  updateMessages.push(botMessage);
+                } else {
+                  botMessage.content = message;
+                }
+              } else {
+                botMessage.content = message;
+              }
             }
             get().updateCurrentSession((session) => {
-              session.messages = session.messages.concat();
+              session.messages = updateMessages;
             });
           },
           onFinish(message) {

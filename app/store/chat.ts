@@ -419,7 +419,8 @@ export const useChatStore = createPersistStore(
         });
 
         if (isOnlyNote) return;
-
+        let newMessages: string[] = [];
+        let newMessagesLength: number = 2;
         // make request
         api.llm.chat({
           messages: sendMessages,
@@ -434,39 +435,39 @@ export const useChatStore = createPersistStore(
               if (slice) {
                 let { sliceIndex = 0 } = botMessage;
                 message = message.slice(sliceIndex);
-                const newMessages = separationMessage(message);
+                newMessages = separationMessage(message);
                 if (newMessages.length > 1) {
                   botMessage.content = newMessages.shift() || "";
                   sliceIndex += botMessage.content.length;
                   botMessage.streaming = false;
                   botMessage.sliceIndex = sliceIndex;
-
                   while (newMessages.length > 1) {
                     const content = newMessages.shift() || "";
                     sliceIndex += content?.length ?? 0;
                     const msg: ChatMessage = createMessage({
                       role: "assistant",
-                      streaming: true,
+                      streaming: false,
                       model: modelConfig.model,
                       chatSessionId: session.id,
                       content,
                       sliceIndex,
                     });
+                    newMessagesLength++;
                     updateMessages.push(msg);
                   }
-                  const content = newMessages.shift() || "";
-                  sliceIndex += content?.length ?? 0;
                   botMessage = createMessage({
                     role: "assistant",
                     streaming: true,
                     model: modelConfig.model,
                     chatSessionId: session.id,
-                    content,
                     sliceIndex,
                   });
+                  newMessagesLength++;
                   updateMessages.push(botMessage);
                 } else {
-                  botMessage.content = message;
+                  // console.log("bot message:", message);
+                  // botMessage.content = message;
+                  // botMessage.sliceIndex = sliceIndex + message.length;
                 }
               } else {
                 botMessage.content = message;
@@ -478,9 +479,15 @@ export const useChatStore = createPersistStore(
           },
           onFinish(message) {
             botMessage.streaming = false;
+            console.log("onFinish:", message, newMessages);
             if (message) {
-              botMessage.content = message;
-              get().onNewMessage(botMessage);
+              if (slice && newMessages.length > 0) {
+                botMessage.content = newMessages.shift() ?? "";
+                botMessage.sliceIndex = 0;
+              } else {
+                botMessage.content = message;
+              }
+              get().onNewMessage(botMessage, newMessagesLength);
             }
             ChatControllerPool.remove(session.id, botMessage.id);
           },

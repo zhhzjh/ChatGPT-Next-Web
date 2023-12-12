@@ -31,13 +31,17 @@ const SEPARATION_REG = /([\.。:\n;])/;
 const MESSAGE_MIN_LENGTH = 10;
 
 export const separationMessage = (message: string): string[] => {
-  const list = message.split(SEPARATION_REG);
-  // console.log("list:", message, list);
+  const list = message.split(SEPARATION_REG).filter((str) => str !== "");
+  console.log("list:", message, list);
   let messages = [];
   while (list.length > 0) {
     let content = "";
     while (content.length < MESSAGE_MIN_LENGTH && list.length > 0) {
       content += (list.shift() ?? "") + (list.shift() ?? "");
+      console.log("join:", content, list);
+      while (list.length > 0 && list[0].match(SEPARATION_REG)) {
+        content += list.shift() ?? "";
+      }
     }
     messages.push(content);
   }

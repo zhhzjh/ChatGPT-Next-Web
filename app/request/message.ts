@@ -12,7 +12,6 @@ export const createMessages = async (messages: BaseMessage[]) => {
     url: API_MESSAGE.CREATE,
     data: requestMessages,
   });
-  console.log("createMessages:", res);
   return res;
 };
 

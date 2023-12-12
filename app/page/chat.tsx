@@ -735,8 +735,8 @@ function _Chat({ isAdmin = false }) {
     setIsLoading(!onlyNote);
 
     chatStore
-      .onUserInput(userInput, onlyNote)
-      // .onUserInput(userInput, onlyNote, session.id === CHAT_LIST[0].id)
+      // .onUserInput(userInput, onlyNote)
+      .onUserInput(userInput, onlyNote, session.id === CHAT_LIST[0].id)
       .then(() => {
         setIsLoading(false);
       });
